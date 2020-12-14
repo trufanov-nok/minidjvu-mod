@@ -13,12 +13,13 @@ WARNFLAGS += -Wlong-long -Wredundant-decls -Wcast-qual -Wcast-align
 WARNFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 
 AM_CFLAGS = $(WARNFLAGS) $(OPENMP_CXXFLAGS) -std=c11
-AM_CXXFLAGS = $(WARNFLAGS)
+AM_CXXFLAGS = $(WARNFLAGS) -std=c++11
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 lib_LTLIBRARIES = libminidjvu-mod.la
+noinst_LTLIBRARIES = libminidjvu-mod-settings.la
 
 libminidjvu_mod_la_SOURCES = src/matcher/no_mdjvu.h src/matcher/bitmaps.h	\
  src/matcher/common.h src/djvu/bs.h src/jb2/jb2coder.h			\
@@ -38,11 +39,30 @@ libminidjvu_mod_la_SOURCES = src/matcher/no_mdjvu.h src/matcher/bitmaps.h	\
  src/djvu/bs.cpp src/jb2/jb2coder.cpp src/jb2/bmpcoder.cpp		\
  src/jb2/jb2load.cpp src/jb2/zp.cpp src/jb2/jb2save.cpp
 
+libminidjvu_mod_settings_la_SOURCES = \
+ tools/settings-reader/Arrays.cpp tools/settings-reader/Arrays.h 			\
+ tools/settings-reader/atomic.cpp tools/settings-reader/atomic.h 			\
+ tools/settings-reader/ByteStream.cpp tools/settings-reader/ByteStream.h 		\
+ tools/settings-reader/DjVuGlobal.cpp tools/settings-reader/DjVuGlobal.h		\
+ tools/settings-reader/GContainer.cpp tools/settings-reader/GContainer.h		\
+ tools/settings-reader/GException.cpp tools/settings-reader/GException.h		\
+ tools/settings-reader/GOS.cpp tools/settings-reader/GOS.h				\
+ tools/settings-reader/GSmartPointer.cpp tools/settings-reader/GSmartPointer.h		\
+ tools/settings-reader/GString.cpp tools/settings-reader/GString.h			\
+ tools/settings-reader/GUnicode.cpp 							\
+ tools/settings-reader/GURL.cpp tools/settings-reader/GURL.h				\
+ tools/settings-reader/ParsingByteStream.cpp tools/settings-reader/ParsingBytestream.h 	\
+ tools/settings-reader/UnicodeByteStream.cpp tools/settings-reader/UnicodeByteStream.h	\
+ tools/settings-reader/SettingsReader.cpp tools/settings-reader/SettingsReader.h	\
+ tools/settings-reader/DjbzSetting.cpp
+
+ 
 bin_PROGRAMS = minidjvu-mod
 
 minidjvu_mod_SOURCES = tools/minidjvu-mod.c
 
-minidjvu_mod_LDADD = libminidjvu-mod.la
+minidjvu_mod_LDADD = libminidjvu-mod.la libminidjvu-mod-settings.la
+
 
 minidjvu-mod.pc:
 	echo 'prefix=$(prefix)'			>  $@

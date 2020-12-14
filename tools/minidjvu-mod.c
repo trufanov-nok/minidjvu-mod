@@ -16,6 +16,9 @@
 #ifdef _WIN32
 #include <fileapi.h>
 #endif
+
+#include "settings-reader/DjbzSetting.h"
+
 /* TODO: remove duplicated code */
 
 
@@ -240,6 +243,10 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("    -w, --warnings:                do not suppress TIFF warnings\n"));
     printf(_("    -X, --Xtension:                file extension for shared dictionary files\n"));
     printf(_("See the man page for detailed description of each option.\n"));
+    
+    printf(test());
+   /// struct DjbzSetting** settings;
+ //   read_settings("file::\\/tmp/sed.ex", settings);
     exit(2);
 }                   /* }}} */
 

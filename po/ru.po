@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Minidjvu 0.9m01\n"
 "Report-Msgid-Bugs-To: alexios@thessalonica.org.ru\n"
-"POT-Creation-Date: 2020-12-10 23:49+0300\n"
+"POT-Creation-Date: 2020-12-13 03:45+0300\n"
 "PO-Revision-Date: 2009-06-27 14:05+0400\n"
 "Last-Translator: Alexey Kryukov <alexios@thessalonica.org.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -650,37 +650,47 @@ msgstr ""
 msgid "%d pages total\n"
 msgstr "всего %d страниц\n"
 
-#: tools/minidjvu-mod.c:593
+#: tools/minidjvu-mod.c:595
 #, c-format
 msgid "Loading: %d of %d completed\n"
 msgstr "Загрузка: выполнено %d из %d\n"
 
-#: tools/minidjvu-mod.c:617
+#: tools/minidjvu-mod.c:619
 #, c-format
 msgid "saving page #%d into %s using dictionary %s\n"
 msgstr "сохранение страницы #%d в файл %s с использованием словаря %s\n"
 
-#: tools/minidjvu-mod.c:631
+#: tools/minidjvu-mod.c:633
 #, c-format
 msgid "Saving: %d of %d completed\n"
 msgstr "Сохранение: выполнено %d из %d\n"
 
-#: tools/minidjvu-mod.c:734
+#: tools/minidjvu-mod.c:636
+#, c-format
+msgid "[%02d."
+msgstr ""
+
+#: tools/minidjvu-mod.c:637
+#, c-format
+msgid "%02d%%]\n"
+msgstr ""
+
+#: tools/minidjvu-mod.c:741
 #, c-format
 msgid "bad --pages-per-dict value\n"
 msgstr "неподходящее значение --pages-per-dict\n"
 
-#: tools/minidjvu-mod.c:746
+#: tools/minidjvu-mod.c:753
 #, c-format
 msgid "bad resolution\n"
 msgstr "неподходящее разрешение\n"
 
-#: tools/minidjvu-mod.c:786
+#: tools/minidjvu-mod.c:793
 #, c-format
 msgid "unknown option: %s\n"
 msgstr "неизвестный параметр: %s\n"
 
-#: tools/minidjvu-mod.c:841
+#: tools/minidjvu-mod.c:848
 #, c-format
 msgid "alive_bitmap_counter = %d\n"
 msgstr "счетчик битовых изображений = %d\n"
