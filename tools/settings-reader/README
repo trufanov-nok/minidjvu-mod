@@ -1,0 +1,6 @@
+This subfolder contains a significant piece of DjVuLibre sourcecode which 
+is build and linked as a shared c++ library: libminidjvu-mod-settings.
+
+The code is required to obtain ParsingByteStream class functionality.
+It's used for reading minidjvu options from a file. Reusage of ParsingByteStream
+to stick to djvused-like input files format.

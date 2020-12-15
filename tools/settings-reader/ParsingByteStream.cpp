@@ -60,7 +60,7 @@
 # pragma implementation
 #endif
 
-#include "ParsingBytestream.h"
+#include "ParsingByteStream.h"
 
 //#include "IW44Image.h"
 #include "GOS.h"

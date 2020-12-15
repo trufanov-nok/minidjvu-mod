@@ -173,7 +173,7 @@ MDJVU_IMPLEMENT int mdjvu_file_save_jb2(mdjvu_image_t image, mdjvu_file_t f, mdj
     ZPEncoder &zp = jb2.zp;
 
     int32 d = 0;
-    if (dictionary)
+    if (dictionary && n > 0)
     {
         d = mdjvu_image_get_bitmap_count(dictionary);
         jb2.open_record(jb2_require_dictionary_or_reset);

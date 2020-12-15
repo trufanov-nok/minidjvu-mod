@@ -18,8 +18,8 @@ AM_CXXFLAGS = $(WARNFLAGS) -std=c++11
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-lib_LTLIBRARIES = libminidjvu-mod.la
-noinst_LTLIBRARIES = libminidjvu-mod-settings.la
+lib_LTLIBRARIES = libminidjvu-mod.la libminidjvu-mod-settings.la
+#noinst_LTLIBRARIES = libminidjvu-mod-settings.la
 
 libminidjvu_mod_la_SOURCES = src/matcher/no_mdjvu.h src/matcher/bitmaps.h	\
  src/matcher/common.h src/djvu/bs.h src/jb2/jb2coder.h			\
@@ -51,18 +51,17 @@ libminidjvu_mod_settings_la_SOURCES = \
  tools/settings-reader/GString.cpp tools/settings-reader/GString.h			\
  tools/settings-reader/GUnicode.cpp 							\
  tools/settings-reader/GURL.cpp tools/settings-reader/GURL.h				\
- tools/settings-reader/ParsingByteStream.cpp tools/settings-reader/ParsingBytestream.h 	\
+ tools/settings-reader/ParsingByteStream.cpp tools/settings-reader/ParsingByteStream.h 	\
  tools/settings-reader/UnicodeByteStream.cpp tools/settings-reader/UnicodeByteStream.h	\
  tools/settings-reader/SettingsReader.cpp tools/settings-reader/SettingsReader.h	\
- tools/settings-reader/DjbzSetting.cpp
+ tools/settings-reader/AppOptions.cpp tools/settings-reader/AppOptions.h		\
+ tools/settings-reader/SettingsReaderAdapter.cpp
 
- 
 bin_PROGRAMS = minidjvu-mod
 
 minidjvu_mod_SOURCES = tools/minidjvu-mod.c
 
 minidjvu_mod_LDADD = libminidjvu-mod.la libminidjvu-mod-settings.la
-
 
 minidjvu-mod.pc:
 	echo 'prefix=$(prefix)'			>  $@

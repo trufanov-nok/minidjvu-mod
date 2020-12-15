@@ -71,7 +71,7 @@ class ParsingByteStream : public ByteStream
 {
 private:
   enum { bufsize=512 };
-  const GP<ByteStream> &gbs;
+  const GP<ByteStream> gbs; // NOTE: keeping a copy, otherwise bs is destroyed while using in SettingsReader.cpp
   ByteStream &bs;
   unsigned char buffer[bufsize];
   int  bufpos;
