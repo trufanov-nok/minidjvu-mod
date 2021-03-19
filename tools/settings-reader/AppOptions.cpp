@@ -49,10 +49,16 @@ struct ImageOptions* image_options_create(struct ImageOptions* defaults)
         opt->erosion = defaults->erosion;
         opt->dpi = defaults->dpi;
         opt->dpi_specified = defaults->dpi_specified;
+        opt->is_virtual = defaults->is_virtual;
+        opt->virtual_h = defaults->virtual_h;
+        opt->virtual_w = defaults->virtual_w;
     } else {
         opt->clean = opt->smooth = opt->erosion = 0;
         opt->dpi = 300;
         opt->dpi_specified = 0;
+        opt->is_virtual = 0;
+        opt->virtual_h = 0;
+        opt->virtual_w = 0;
     }
 
     return opt;
@@ -80,6 +86,7 @@ struct InputFile* input_file_create()
     in->chunk_id = NULL;
     in->output_size = 0;
     in->djbz = NULL;
+
     return in;
 }
 
@@ -162,7 +169,8 @@ void file_list_add_filename(struct FileList *fl, const char* fname, struct Image
 
 #ifdef HAVE_LIBTIFF
     int tiff_cnt = 0;
-    if (is_tiff(fname) && (tiff_cnt = mdjvu_get_tiff_page_count(fname)) > 1)
+    const int is_virtual = options && options->is_virtual;
+    if (!is_virtual && is_tiff(fname) && (tiff_cnt = mdjvu_get_tiff_page_count(fname)) > 1)
     {
         // multipage tiff is detected
         for (int i = 0; i < tiff_cnt; i++) {
@@ -203,7 +211,8 @@ void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, 
     }
 #else
     int tiff_cnt = 0;
-    if (is_tiff(fname) && (tiff_cnt = mdjvu_get_tiff_page_count(fname)) > 1)
+    const int is_virtual = options && options->is_virtual;
+    if (!is_virtual && is_tiff(fname) && (tiff_cnt = mdjvu_get_tiff_page_count(fname)) > 1)
     {
         // multipage tiff is detected
 

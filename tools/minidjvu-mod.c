@@ -209,8 +209,11 @@ static mdjvu_bitmap_t load_bitmap(struct InputFile* in)
         dpi_to_read = NULL;
     }
 
+    const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
 
-    if (decide_if_bmp(in->name))
+    if (img_opts->is_virtual) {
+        return NULL;
+    } else if (decide_if_bmp(in->name))
     {
         if (options.verbose) printf(_("loading from Windows BMP file `%s'\n"), in->name);
         bitmap = mdjvu_load_bmp(in->name, &error);
@@ -247,7 +250,7 @@ static mdjvu_bitmap_t load_bitmap(struct InputFile* in)
         exit(1);
     }
 
-    const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
+
     if (img_opts->smooth)
     {
         if (options.verbose) printf(_("smoothing the bitmap\n"));
@@ -327,6 +330,20 @@ static mdjvu_image_t split_and_destroy(mdjvu_bitmap_t bitmap, const struct Input
 {
     mdjvu_image_t image;
     if (options.verbose) printf(_("splitting the bitmap into pieces\n"));
+
+    const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
+    if (!bitmap && img_opts->is_virtual) {
+        image = mdjvu_image_create(img_opts->virtual_w, img_opts->virtual_h);
+        mdjvu_image_set_resolution(image, in->output_dpi);
+
+        if (options.verbose)
+        {
+            printf(_("creating virtual empty image(%d, %d, dpi: %d) in place of file `%s`\n"),
+                   img_opts->virtual_w, img_opts->virtual_h, in->output_dpi, in->name);
+        }
+
+        return image;
+    }
     image = mdjvu_split(bitmap, in->output_dpi, /* options:*/ NULL);
     mdjvu_bitmap_destroy(bitmap);
     if (options.verbose)
@@ -335,7 +352,6 @@ static mdjvu_image_t split_and_destroy(mdjvu_bitmap_t bitmap, const struct Input
                mdjvu_image_get_blit_count(image));
     }
 
-    const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
     if (img_opts->clean)
     {
         if (options.verbose) printf(_("cleaning\n"));

@@ -20,6 +20,13 @@ struct ImageOptions
     int smooth;
     int clean;
     int erosion;
+
+    // if is_virtual == 1 the file isn't really read and it's existance isn't checked
+    // instead encoder will treat such file as empty image with size (virtual_w, virtual_h)
+    // and dpi specified as usual.
+    int is_virtual;
+    int virtual_w;
+    int virtual_h;
 };
 
 struct DjbzOptions;
@@ -41,6 +48,7 @@ struct InputFile
     int output_dpi;
     char * chunk_id;
     int output_size;
+
     struct ChunkFile chunk_file;
     struct DjbzOptions* djbz;
 };

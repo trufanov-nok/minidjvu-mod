@@ -75,7 +75,7 @@ SettingsReader::readAllOptions()
             }
             djbz_list_add_option(&m_appOptions->djbz_list, djbz);
         } else {
-            std::cerr << "Syntax error in settings file: expecting '(djbz'\n";
+            std::cerr << "Syntax error in settings file: expecting '(options', '(input-files' or '(djbz'\n";
             return false;
         }
         c = pbs.get_spaces(true);
@@ -276,6 +276,10 @@ SettingsReader::readImageOptions(struct ImageOptions* opts)
         } else if (token == "dpi") {
             if (!readValInt("dpi", opts->dpi, 20, 2000)) return false;
             opts->dpi_specified = 1;
+        } else if (token == "virtual") {
+            if (!readValInt("virtual (width)", opts->virtual_w, 1, 0x7FFFFFFF)) return false;
+            if (!readValInt("virtual (height)", opts->virtual_h, 1, 0x7FFFFFFF)) return false;
+            opts->is_virtual = 1;
         } else {
             std::cerr << "Wrong image token: \"" << token.getbuf() << "\"\n";
         }
