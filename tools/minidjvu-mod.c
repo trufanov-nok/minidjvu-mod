@@ -401,6 +401,13 @@ static void filter()
     mdjvu_bitmap_destroy(bitmap);
 }
 
+static void print_progress(double progress)
+{
+    printf(_("[%02d."), (int)progress); //ensure dot as delimiter as in C locale
+    printf(_("%02d%%]\n"), (int)(100*(progress - (int)progress)));
+}
+
+
 static void multipage_encode()
 {
 
@@ -436,7 +443,7 @@ static void multipage_encode()
 #endif
 
     int djbz_idx;
-    int processed_pages = 0;
+    double processed_pages = 0;
     // no need to check _OPENMP as unsupported pragmas are ignored
 #pragma omp parallel for schedule(static, 1) shared(processed_pages)
     for (djbz_idx = 0; djbz_idx < options.djbz_list.size; djbz_idx++)
@@ -471,8 +478,11 @@ static void multipage_encode()
             struct InputFile* in = djbz->file_list_ref.files[i];
             bitmap = load_bitmap(in);
             images[i] = split_and_destroy(bitmap, in);
-            if (options.report)
+            if (options.report) {
                 printf(_("Loading: %d of %d completed\n"), pages_compressed + i + 1, options.file_list.size);
+                processed_pages += 0.3;
+                print_progress(100.0*processed_pages/options.file_list.size);
+            }
         }
 
         mdjvu_image_t dict = mdjvu_compress_multipage(djbz->file_list_ref.size, images, compr_opts);
@@ -490,6 +500,11 @@ static void multipage_encode()
                 fprintf(stderr, "%s: %s\n", djbz->chunk_id, mdjvu_get_error_message(error));
                 exit(1);
             }
+        }
+
+        if (options.report) {
+            processed_pages += djbz->file_list_ref.size*0.3;
+            print_progress(100.0*processed_pages/options.file_list.size);
         }
 
 
@@ -525,10 +540,13 @@ static void multipage_encode()
             mdjvu_image_destroy(images[i]);
             if (options.report) {
                 printf(_("Saving: %d of %d completed\n"), pages_compressed + i + 1, options.file_list.size);
-                processed_pages++;
-                float res = 100.0*processed_pages/options.file_list.size;
-                printf(_("[%02d."), (int)res); //ensure dot as delimiter as in C locale
-                printf(_("%02d%%]\n"), (int)(100*(res - (int)res)));
+                if (pages_compressed + i + 1 == options.file_list.size) {
+                    print_progress(100.0);
+                } else {
+                    processed_pages += 0.4;
+                    print_progress(100.0*processed_pages/options.file_list.size);
+                }
+
             }
         }
         mdjvu_image_destroy(dict);
