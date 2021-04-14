@@ -105,6 +105,8 @@ struct AppOptions
     struct DjbzList djbz_list;
 
     char* output_file;
+    int save_as_chunk;
+
 };
 
 #ifdef __cplusplus
@@ -112,6 +114,7 @@ extern "C" {
 #endif
 
 void copy_str_alloc(char** dest, const char *src);
+void replace_suffix(char *name, const char *suffix);
 
 struct ImageOptions* image_options_create(struct ImageOptions* defaults);
 

@@ -79,6 +79,8 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("    -d <n> --dpi <n>:              set resolution in dots per inch\n"));
     printf(_("    -e, --erosion                  sacrifice quality to gain in size\n"));
     printf(_("    -i, --indirect:                generate an indirect multipage document\n"));
+    printf(_("    -j, --jb2:                     save pages as jb2 chunks instead of djvu.\n"));
+    printf(_("                                   implies indirect mode.\n"));
     printf(_("    -l, --lossy:                   use all lossy options (-s -c -m -e -A)\n"));
     printf(_("    -m, --match:                   match and substitute patterns\n"));
     printf(_("    -n, --no-prototypes:           do not search for prototypes\n"));
@@ -187,8 +189,15 @@ static void sort_and_save_image(mdjvu_image_t image, const char *path, const str
     if (options.verbose) printf(_("encoding to `%s'\n"), path);
 
     const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
-    if (!mdjvu_save_djvu_page(image, path, NULL, &error, img_opts->erosion))
-    {
+
+    int res;
+    if (!options.save_as_chunk) {
+        res = mdjvu_save_djvu_page(image, path, NULL, &error, img_opts->erosion);
+    } else {
+        res = mdjvu_save_jb2(image, path, &error, img_opts->erosion);
+    }
+
+    if (!res) {
         fprintf(stderr, "%s: %s\n", path, mdjvu_get_error_message(error));
         exit(1);
     }
@@ -379,6 +388,9 @@ static void encode()
 
     bitmap = load_bitmap(in);
     image = split_and_destroy(bitmap, in);
+    if (options.save_as_chunk) {
+        replace_suffix(options.output_file, "jb2");
+    }
     sort_and_save_image(image, options.output_file, in);
     mdjvu_image_destroy(image);
 }
@@ -528,7 +540,13 @@ static void multipage_encode()
                                        mdjvu_image_get_bitmap_count(images[i]) == 0 ) ? NULL : djbz->chunk_id;
 
             chunk_file_open(&in->chunk_file);
-            in->output_size = mdjvu_file_save_djvu_page(images[i], (mdjvu_file_t) in->chunk_file.file, dict_chunk, 0, &error, img_opts->erosion);
+            if (!options.save_as_chunk) {
+                in->output_size = mdjvu_file_save_djvu_page(images[i], (mdjvu_file_t) in->chunk_file.file, dict_chunk, 0, &error, img_opts->erosion);
+            } else {
+                int pos = ftell((FILE *) in->chunk_file.file);
+                mdjvu_file_save_jb2(images[i], (mdjvu_file_t) in->chunk_file.file, &error, img_opts->erosion);
+                in->output_size = ftell((FILE *) in->chunk_file.file) - pos;
+            }
             chunk_file_close(&in->chunk_file);
 
             if (!in->output_size)
@@ -734,6 +752,8 @@ static void process_options(int argc, char **argv)
         }
         else if (same_option(option, "indirect"))
             options.indirect = 1;
+        else if (same_option(option, "jb2"))
+            options.save_as_chunk = 1;
 #ifdef _OPENMP
         else if (same_option(option, "threads-max"))
         {
@@ -758,6 +778,11 @@ static void process_options(int argc, char **argv)
             fprintf(stderr, _("unknown option: %s\n"), argv[i]);
             exit(2);
         }
+    }
+
+    if (options.save_as_chunk && !options.indirect) {
+        // imply indirect mode.
+        options.indirect = 1;
     }
 
 

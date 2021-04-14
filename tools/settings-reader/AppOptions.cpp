@@ -534,7 +534,7 @@ static int get_ext_delim_pos(const char *fname)
     return last;
 }
 
-static char *get_page_or_dict_name(const char *fname, int page)
+static char *get_page_or_dict_name(const char *fname, int page, bool save_as_chunk)
 {
     const int extpos = get_ext_delim_pos(fname);
     char * page_name = MDJVU_MALLOCV(char, extpos + 10);
@@ -543,19 +543,25 @@ static char *get_page_or_dict_name(const char *fname, int page)
         strncpy(page_name, fname, extpos-1);
     }
     if (page > 0) {
-        sprintf(page_name + (extpos - 1),"#%03d.djvu", page+1);
+        sprintf(page_name + (extpos - 1),"#%03d%s", page+1, !save_as_chunk ? ".djvu" : ".jb2");
     } else {
-        strcat(page_name, ".djvu");
+        strcat(page_name, !save_as_chunk ? ".djvu" : ".jb2");
     }
 
     return(page_name);
 }
 
-static void replace_suffix(char *name, const char *suffix)
+void replace_suffix(char *name, const char *suffix)
 {
     int len = strlen(name);
 
-    name[len-4] = '\0';
+    int suffix_len = 0;
+    for (suffix_len = 0; suffix_len < len; suffix_len++) {
+        if (name[len-suffix_len-1] == '.') {
+            break;
+        }
+    }
+    name[len-suffix_len] = '\0';
     strcat(name, suffix);
 }
 
@@ -595,6 +601,7 @@ void app_options_init(struct AppOptions* opts)
     opts->report = 0;
     opts->warnings = 0;
     opts->indirect = 0;
+    opts->save_as_chunk = 0;
 
 #ifdef _OPENMP
     opts->max_threads = 0;
@@ -701,7 +708,7 @@ void app_options_construct_chunk_ids(struct AppOptions* opts)
         if (in->chunk_id) {
             MDJVU_FREEV(in->chunk_id);
         }
-        in->chunk_id = get_page_or_dict_name(strip_dir(in->name), in->page);
+        in->chunk_id = get_page_or_dict_name(strip_dir(in->name), in->page, opts->save_as_chunk);
         chunk_file_create(&in->chunk_file, opts->indirect ? in->chunk_id : NULL);
     }
 
