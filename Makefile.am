@@ -12,8 +12,8 @@ WARNFLAGS += -pedantic-errors -Wpointer-arith -Waggregate-return
 WARNFLAGS += -Wlong-long -Wredundant-decls -Wcast-qual -Wcast-align
 WARNFLAGS += -Wmissing-declarations
 
-AM_CFLAGS = $(WARNFLAGS) -Wmissing-prototypes -Wstrict-prototypes $(OPENMP_CXXFLAGS) -std=c11
-AM_CXXFLAGS = $(WARNFLAGS) $(OPENMP_CXXFLAGS) -std=c++11
+AM_CFLAGS = $(WARNFLAGS) -Wmissing-prototypes -Wstrict-prototypes $(OPENMP_CXXFLAGS) -std=c11 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE
+AM_CXXFLAGS = $(WARNFLAGS) $(OPENMP_CXXFLAGS) -std=c++11 -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
