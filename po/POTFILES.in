@@ -3,3 +3,5 @@ src/alg/compress.c
 src/base/1error.c
 src/base/mdjvucfg.h
 tools/minidjvu-mod.c
+tools/settings-reader/AppOptions.cpp
+tools/settings-reader/SettingsReader.cpp

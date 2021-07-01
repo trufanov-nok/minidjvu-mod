@@ -1,4 +1,11 @@
 ---
+0.9m02
+---
+    Added settings file support that may be passed via -S key. Settings file allows to
+    fine-tune DjVu encoding process and set per-page/per-djbz parameters.
+    Documentation and translation is updated.
+
+---
 0.9m01
 ---
     A forked modified version. From now on fork version will contain version of minidjvu

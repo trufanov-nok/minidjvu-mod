@@ -1,3 +1,10 @@
+minidjvu-mod (0.9m02) bionic; urgency=medium
+
+  * Settings file support
+  * Translations and documentation update
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Thu, 01 Jul 2021 12:37:00 +0300
+
 minidjvu-mod (0.9m01) trusty; urgency=medium
 
   * Initial Release of the fork on the Lunchpad

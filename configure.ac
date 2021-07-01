@@ -1,5 +1,5 @@
 AC_PREREQ([2.67])
-AC_INIT([minidjvu-mod],[0.9m01],[trufanovan@gmail.com],,[https://github.com/trufanov-nok/minidjvu_mod/])
+AC_INIT([minidjvu-mod],[0.9m02],[trufanovan@gmail.com],,[https://github.com/trufanov-nok/minidjvu_mod/])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_HEADER(config.h:config/config.h.in)
 AC_CONFIG_MACRO_DIR([m4])

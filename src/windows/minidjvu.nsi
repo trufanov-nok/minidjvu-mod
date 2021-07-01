@@ -1,8 +1,8 @@
 !include "MUI.nsh"
 
   ;Name and file
-  Name "Minidjvu 0.9m01"
-  OutFile "minidjvu-mod-0.9m01.exe"
+  Name "Minidjvu 0.9m02"
+  OutFile "minidjvu-mod-0.9m02.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\minidjvu-mod"
@@ -51,8 +51,6 @@ Section "Install"
   Delete "$INSTDIR\tiff_lic.html"
   Delete "$INSTDIR\tiffinfo.exe"
   Delete "$INSTDIR\tiffsplit.exe"
-  Delete "$INSTDIR\tifftodjvu.hta"
-  Delete "$INSTDIR\tifftodjvu_help.html"
   Delete "$INSTDIR\windjview.exe"
   Delete "$INSTDIR\zlib1.dll"
   Delete "$INSTDIR\README.html"
@@ -62,12 +60,9 @@ Section "Install"
   File "COPYING"
   File "News"
   File "bin\minidjvu-mod.exe"
-  File "tifftodjvu.hta"
   CreateDirectory $INSTDIR\doc
-  File "/oname=doc\tifftodjvu_help.html" "doc\tifftodjvu_help.html"
 
   CreateDirectory $SMPROGRAMS\minidjvu-mod
-  CreateShortcut  $SMPROGRAMS\minidjvu-mod\TIFF-to-DjVu.lnk $INSTDIR\tifftodjvu.hta
   CreateShortcut  $SMPROGRAMS\minidjvu-mod\Uninstall.lnk $INSTDIR\Uninstall.exe
 
   ;Store installation folder
@@ -84,15 +79,12 @@ Section "Uninstall"
 
   Delete "$INSTDIR\COPYING"
   Delete "$INSTDIR\minidjvu-mod.exe"
-  Delete "$INSTDIR\tifftodjvu.hta"
-  Delete "$INSTDIR\doc\tifftodjvu_help.html"
 
   Delete "$INSTDIR\Uninstall.exe"
 
   RMDir "$INSTDIR\doc"
   RMDir "$INSTDIR"
 
-  Delete "$SMPROGRAMS\minidjvu-mod\TIFF-to-DjVu.lnk"
   Delete "$SMPROGRAMS\minidjvu-mod\Uninstall.lnk"
   RMDir  "$SMPROGRAMS\minidjvu-mod"
 

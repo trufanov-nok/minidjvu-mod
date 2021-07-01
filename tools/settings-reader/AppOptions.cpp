@@ -188,14 +188,10 @@ inline void adjust_pages_interval(const char* fname, int tiff_cnt, int& pg_min, 
 {
     if (tiff_cnt < pg_max+1) {
         pg_max = tiff_cnt;
-        std::cerr << "WARNING: file \"" << fname << "\" is expected to be multipage and pages " <<
-                     pg_min << " to " << pg_max << " are requested. But it contains only " <<
-                     tiff_cnt << " pages.\nMissing pages are ignored.\n";
+        fprintf(stderr, _("WARNING: file \"%s\" is expected to be multipage and pages %d to %d are requested. But it contains only %d pages.\nMissing pages are ignored.\n"), fname, pg_min, pg_max, tiff_cnt);
     }
     if (pg_min+1 > tiff_cnt) {
-        std::cerr << "ERROR: file \"" << fname << "\" is expected to be multipage and pages " <<
-                     pg_min << " to " << pg_max << " are requested. But it contains only " <<
-                     tiff_cnt << " pages.\nProcess aborted\n";
+        fprintf(stderr, _("ERROR: file \"%s\" is expected to be multipage and pages %d to %d are requested. But it contains only %d pages.\nProcess aborted.\n"), fname, pg_min, pg_max, tiff_cnt);
         exit(-2);
     }
 }
@@ -204,9 +200,8 @@ void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, 
 {
 #ifndef HAVE_LIBTIFF
     if (pg_max || pg_min) {
-        std::cerr << "ERROR: file \"" << fname << "\" is expected to be multipage and pages " <<
-                     pg_min << " to " << pg_max << " are requested. But minidjvu-mod is built" \
-                     " with no libtiff support.\n";
+        fprintf(stderr, _("ERROR: file \"%s\" is expected to be multipage and pages %d to %d are requested. But minidjvu-mod is built" \
+                     " without libtiff support.\n"), fname, pg_min, pg_max);
         exit(-2);
     }
 #else
@@ -263,7 +258,7 @@ void file_list_add_ref(struct FileList* dest, struct FileList* src, const char* 
         for (int i = 0; i < tiff_cnt; i++) {
             idx = file_list_find_by_filename_and_page(src, fname, i);
             if (idx == -1) {
-                std::cerr << "ERROR: page " << idx << " of file \"" << fname << "\" is referenced by djbz but can't be found.\n";
+                fprintf(stderr, _("ERROR: page %d of file \"%s\" is referenced by djbz but can't be found.\n"), idx, fname);
                 exit(-2);
             }
             file_list_add_file_ref(dest, src->files[idx]);
@@ -273,7 +268,7 @@ void file_list_add_ref(struct FileList* dest, struct FileList* src, const char* 
     {
         idx = file_list_find_by_filename_and_page(src, fname, 0);
         if (idx == -1) {
-            std::cerr << "ERROR: file \"" << fname << "\" is referenced by djbz but can't be found.\n";
+            fprintf(stderr, _("ERROR: file \"%s\" is referenced by djbz but can't be found.\n"), fname);
             exit(-2);
         }
         file_list_add_file_ref(dest, src->files[idx]);
@@ -285,9 +280,8 @@ void file_list_add_ref_with_filter(struct FileList* dest, struct FileList* src, 
     int idx = -1;
 #ifndef HAVE_LIBTIFF
     if (pg_max || pg_min) {
-        std::cerr << "ERROR: file \"" << fname << "\" is expected to be multipage and pages " <<
-                     pg_min << " to " << pg_max << " are referenced by djbz. But minidjvu-mod is built" \
-                     " with no libtiff support.\n";
+        fprintf(stderr, _("ERROR: file \"%s\" is expected to be multipage and pages %d to %d are referenced by djbz. But minidjvu-mod is built" \
+                     " without libtiff support.\n"), fname, pg_min, pg_max);
         exit(-2);
     }
 #else
@@ -301,7 +295,7 @@ void file_list_add_ref_with_filter(struct FileList* dest, struct FileList* src, 
         for (int i = pg_min; i <= pg_max; i++) {
             idx = file_list_find_by_filename_and_page(src, fname, i);
             if (idx == -1) {
-                std::cerr << "ERROR: page " << idx << " of file \"" << fname << "\" is referenced by djbz but can't be found.\n";
+                fprintf(stderr, _("ERROR: page %d of file \"%s\" is referenced by djbz but can't be found.\n"), idx, fname);
                 exit(-2);
             }
 
@@ -312,7 +306,7 @@ void file_list_add_ref_with_filter(struct FileList* dest, struct FileList* src, 
     {
         idx = file_list_find_by_filename_and_page(src, fname, 0);
         if (idx == -1) {
-            std::cerr << "ERROR: file \"" << fname << "\" is referenced by djbz but can't be found.\n";
+            fprintf(stderr, _("ERROR: file \"%s\" is referenced by djbz but can't be found.\n"), fname);
             exit(-2);
         }
 
@@ -666,7 +660,7 @@ void app_options_set_output_file(struct AppOptions* opts, const char* filename)
 #else
             if (_chdir(path)==-1) {
 #endif
-                std::cerr << "ERROR: can't change working directory to: " << path << "\n";
+                fprintf(stderr, _("ERROR: can't change working directory to: %s\n"), path);
                 exit(-2);
             }
             MDJVU_FREEV(path);

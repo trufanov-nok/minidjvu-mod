@@ -3,6 +3,7 @@
 #include "GSmartPointer.h"
 #include "GURL.h"
 #include "GString.h"
+#include "../../src/base/mdjvucfg.h" /* for i18n */
 #include <iostream>
 #include <memory>
 
@@ -36,12 +37,12 @@ SettingsReader::readAllOptions()
 
     int c = pbs.get_spaces(true);
     if (c == EOF) {
-        std::cerr << "Empty file or can't be read\n";
+        std::cerr << _("Empty file or can't be read\n");
         return false;
     }
 
     if (c!='(') {
-        std::cerr << "Syntax error in settings file: expecting '('\n";
+        std::cerr << _("Syntax error in settings file: expecting '('\n");
         return false;
     }
 
@@ -54,7 +55,7 @@ SettingsReader::readAllOptions()
         if (token == "options") {
             app_options_found = 1;
             if ( input_files_found ) {
-                std::cerr << "Error: \"options\" list must be declared before \"input-files\" lists.\n";
+                std::cerr << _("Error: \"options\" list must be declared before \"input-files\" lists.\n");
                 return false;
             }
             if (!readAppOptions())
@@ -65,7 +66,7 @@ SettingsReader::readAllOptions()
                 return false;
         } else if (token == "djbz") {
             if ( !app_options_found || !input_files_found ) {
-                std::cerr << "Error: \"djbz\" sttings lists must be declared after \"options\" and \"input-files\" lists.\n";
+                std::cerr << _("Error: \"djbz\" settings lists must be declared after \"options\" and \"input-files\" lists.\n");
                 return false;
             }
             struct DjbzOptions* djbz = djbz_setting_create(m_appOptions->default_djbz_options);
@@ -75,7 +76,7 @@ SettingsReader::readAllOptions()
             }
             djbz_list_add_option(&m_appOptions->djbz_list, djbz);
         } else {
-            std::cerr << "Syntax error in settings file: expecting '(options', '(input-files' or '(djbz'\n";
+            std::cerr << _("Syntax error in settings file: expecting '(options', '(input-files' or '(djbz'\n");
             return false;
         }
         c = pbs.get_spaces(true);
@@ -89,7 +90,7 @@ SettingsReader::readAllOptions()
 
  (default-djbz       # default djbz settings
    averaging     0   # default averaging (off)
-   aggression    100 # default agression level (100)
+   aggression    100 # default aggression level (100)
    classifier    3   # default classifier (max compression)
    erosion       0   # default erosion (disabled)
    no-prototypes 0   # default prototypes usage (on)
@@ -165,8 +166,7 @@ SettingsReader::readAppOptions()
                 }
                 continue;
             } else {
-                std::cerr << "ERROR: only \"default-djbz\" list could be nested in \"options\" list, but " <<
-                             token.getUTF82Native().getbuf() << " found!\n";
+                fprintf(stderr, _("ERROR: only \"default-djbz\" or \"default-image\" lists could be nested in \"options\" list, but %s found!\n"), token.getUTF82Native().getbuf());
                 return false;
             }
         }
@@ -211,7 +211,7 @@ SettingsReader::readAppOptions()
                 } else if (token == "warnings") {
                     if (!readValInt("warnings", m_appOptions->warnings)) return false;
                 } else {
-                    std::cerr << "Wrong options token: \"" << token.getbuf() << "\"\n";
+                    fprintf(stderr, _("Wrong options token: \"%s\"\n"), token.getbuf());
                 }
     }
     return true;
@@ -237,7 +237,7 @@ SettingsReader::readAppOptions()
 
    #dpi 300          # if set, use this dpi value for encoding this image
                      # if not set use default dpi value if it's set
-                     # if default value isn't det, use dpi of source image
+                     # if default value isn't set, use dpi of source image
 
    smooth       0    # smoothing image before processing (off)
    clean        0    # cleaning image while processing (off)
@@ -281,7 +281,7 @@ SettingsReader::readImageOptions(struct ImageOptions* opts)
             if (!readValInt("virtual (height)", opts->virtual_h, 1, 0x7FFFFFFF)) return false;
             opts->is_virtual = 1;
         } else {
-            std::cerr << "Wrong image token: \"" << token.getbuf() << "\"\n";
+            fprintf(stderr, _("Wrong image token:\"%s\"\n"), token.getbuf());
         }
     }
 
@@ -307,7 +307,7 @@ SettingsReader::readImageOptions(struct ImageOptions* opts)
                    # that overrides default settings
      smooth   0
      clean    0
-     # etc. as desctibed above
+     # etc. as described above
    )
    page       0    # if file is multipage, use only page 0
    page-start 0    # if file is multipage, use pages from 0 to page-end
@@ -364,8 +364,7 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
                 }
                 continue;
             } else {
-                std::cerr << "ERROR: only \"image\" list could be nested in \"file\", but " <<
-                             token.getUTF82Native().getbuf() << " found!\n";
+                fprintf(stderr, _("ERROR: only \"image\" list could be nested in \"file\", but %s found!\n"), token.getUTF82Native().getbuf());
                 return false;
             }
         }
@@ -387,7 +386,7 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
     }
 
     if (!filename.is_valid()) {
-        std::cerr << "ERROR: No any files are listed after file token!\n";
+        std::cerr << _("ERROR: No any files are listed after file token!\n");
         return false;
     }
 
@@ -447,8 +446,7 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
                 }
                 continue;
             } else {
-                std::cerr << "ERROR: only \"file\" list could be nested in \"input-files\" list, but " <<
-                             token.getUTF82Native().getbuf() << " found!\n";
+                fprintf(stderr, _("ERROR: only \"file\" list could be nested in \"input-files\" list, but %s found!\n"), token.getUTF82Native().getbuf());
                 return false;
             }
         }
@@ -461,7 +459,7 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
     }
 
     if (file_list->size - old_cnt == 0) {
-        std::cerr << "No any files are listed after input-files token!\n";
+        std::cerr << _("No any files are listed after input-files token!\n");
         return false;
     }
 
@@ -480,7 +478,7 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
    averaging  0    # overrides default averaging (0)
    aggression 100  # overrides default aggression (100)
    classifier 3    # overrides default classifier used to encode this block
-   no-prototypes 0 # overides default no-prototypes
+   no-prototypes 0 # overrides default no-prototypes
    erosion       0 # overrides erosion of glyphs in djbz dictionary
                    # (which is jb2 image by nature)
    (files          # a list of files that should be included in this djbz
@@ -523,7 +521,7 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
 
         if (token[0] == '(') {
             if (is_defaults) {
-                std::cerr << "ERROR: no nested lists are allowed in \"default-djbz\"!\n";
+                std::cerr << _("ERROR: no nested lists are allowed in \"default-djbz\"!\n");
                 return false;
             }
             //nested list
@@ -537,8 +535,7 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
                 }
                 continue;
             } else {
-                std::cerr << "ERROR: only \"files\" list could be nested in \"djbz\" list, but " <<
-                             token.getUTF82Native().getbuf() << " found!\n";
+                fprintf(stderr, _("ERROR: only \"files\" list could be nested in \"djbz\" list, but %s found!\n"), token.getUTF82Native().getbuf());
                 return false;
             }
         }
@@ -546,7 +543,7 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
 
         if (token == "id") {
             if (is_defaults) {
-                std::cerr << "ERROR: id option isn't allowed in \"default-djbz\"!\n";
+                std::cerr << _("ERROR: id option isn't allowed in \"default-djbz\"!\n");
                 return false;
             }
             if (!readValStr("id", val)) return false;
@@ -567,7 +564,7 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
         } else if (token == "erosion") {
             if (!readValInt("erosion", djbz->erosion)) return false;
         } else {
-            std::cerr << "Wrong djbz setting: " << token.getbuf() << "\n";
+            fprintf(stderr, _("Wrong djbz setting: %s\n"), token.getbuf());
         }
     }
 
@@ -575,12 +572,12 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
     if (!is_defaults) {
         // do some verifications
         if (!djbz->id) {
-            std::cerr << "id is missing in djbz list!\n";
+            std::cerr << _("id is missing in djbz list!\n");
             return false;
         }
 
         if (djbz->file_list_ref.size == 0) {
-            std::cerr << "djbz list with id \"" << djbz->id << "\" contains no files!\n";
+            fprintf(stderr, _("djbz list with id \"%s\" contains no files!\n"), djbz->id);
             return false;
         }
     }
@@ -611,8 +608,7 @@ SettingsReader::readValInt(const char* name, int& src, int min, int max)
         i = val.toInt();
     }
     if (i < min || i > max) {
-        std::cerr << "Wrong \"" << name << "\" value: \"" << val.getbuf() <<
-                     "\". Integer from " << min << " to " << max << " is expected.\n";
+        fprintf(stderr, _("Wrong \"%s\" value: \"%s\". Integer from %d to %d is expected.\n"), name, val.getbuf(), min, max);
         return false;
     }
     src = i;
@@ -634,7 +630,7 @@ SettingsReader::readValStr(const char* name, GUTF8String &src)
     }
 
     if (!val || val.length() == 0) {
-        std::cerr << "\"" << name << "\" argument is missing!\n";
+        fprintf(stderr, _("\"%s\" argument is missing!\n"), name );
         return false;
     }
     src = val;

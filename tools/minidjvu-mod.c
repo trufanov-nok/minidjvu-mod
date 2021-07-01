@@ -95,13 +95,14 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("                                   dictionaries in up to N parallel threads.\n"));
     printf(_("                                   By default N is equal to the number of \n"));
     printf(_("                                   CPU cores in case there're 1 or 2 \n"));
-    printf(_("                                   and number of CPU cores minus 1 otherwise\n"));
+    printf(_("                                   and number of CPU cores minus 1 otherwise.\n"));
     printf(_("                                   Specify -t 1 to disable multithreading\n"));
 #endif
     printf(_("    -u, --unbuffered:              unbuffered output to console\n"));
     printf(_("    -v, --verbose:                 print messages about everything\n"));
     printf(_("    -w, --warnings:                do not suppress TIFF warnings\n"));
-    printf(_("    -X, --Xtension:                file extension for shared dictionary files\n"));
+    printf(_("    -X, --Xtension:                file extension for shared dictionary files.\n"));
+    printf(_("                                   Default value is \"djbz\"\n"));
     printf(_("See the man page for detailed description of each option.\n"));
 
     exit(2);
