@@ -28,6 +28,9 @@ MDJVU_IMPLEMENT int mdjvu_files_save_djvu_dir(char **elements, int *sizes,
         for (int j = 0; j < num_tempfiles; j++) {
             int i, fpos, tpos;
             FILE * tempfile = (FILE *) tempfiles[j];
+#ifdef _WIN32
+            fseek(tempfile, 0, SEEK_END);
+#endif
             tpos = ftell(tempfile);
             fpos = ftell((FILE *) file);
 

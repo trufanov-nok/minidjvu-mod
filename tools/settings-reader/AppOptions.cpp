@@ -429,7 +429,7 @@ void chunk_file_create(struct ChunkFile* cf, char* fname)
 
     if (!cf->indirect_mode) {
 #ifdef _WIN32
-        cf->chunk_filename = (char*) MDJVU_MALLOCV(char, MAX_PATH+1);
+        cf->filename = (char*) MDJVU_MALLOCV(char, MAX_PATH+1);
         char pathname[MAX_PATH+1];
         if (GetTempPathA(MAX_PATH+1, pathname) == 0) {
             fprintf(stderr, _("Could not create a temporary file. (GetTempPathA)\n"));
@@ -456,7 +456,7 @@ void chunk_file_open(struct ChunkFile* cf)
         cf->file = fopen(cf->filename, "w+b");
     } else {
 #ifdef _WIN32
-        cf->file = fopen(cf->chunk_filename, "w+b");
+        cf->file = fopen(cf->filename, "r+b");
 #else
         // already opened
 #endif
@@ -491,11 +491,11 @@ void chunk_file_close(struct ChunkFile* cf)
 void chunk_file_destroy(struct ChunkFile* cf)
 {
 #ifdef _WIN32
-    if (remove(cf->chunk_filename) != 0) {
+    if (remove(cf->filename) != 0) {
         fprintf(stderr, _("Can't remove file (errno: %s)\n"), strerror(errno));
         exit(-2);
     }
-    MDJVU_FREEV(cf->chunk_filename);
+    MDJVU_FREEV(cf->filename);
 #else
     if (!cf->indirect_mode) {
         // not indirect
@@ -503,8 +503,8 @@ void chunk_file_destroy(struct ChunkFile* cf)
             fprintf(stderr, _("Can't close file (errno: %s)\n"), strerror(errno));
             exit(-2);
         }
-#endif
     }
+#endif
 
     cf->file = NULL;
 }
@@ -665,6 +665,8 @@ void app_options_set_output_file(struct AppOptions* opts, const char* filename)
             }
             MDJVU_FREEV(path);
             copy_str_alloc(&opts->output_file, file);
+        } else {
+            copy_str_alloc(&opts->output_file, filename);
         }
 
     }
