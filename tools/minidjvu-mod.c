@@ -559,13 +559,12 @@ static void multipage_encode()
             mdjvu_image_destroy(images[i]);
             if (options.report) {
                 printf(_("Saving: %d of %d completed\n"), pages_compressed + i + 1, options.file_list.size);
-                if (pages_compressed + i + 1 == options.file_list.size) {
-                    print_progress(100.0);
-                } else {
-                    processed_pages += 0.4;
-                    print_progress(100.0*processed_pages/options.file_list.size);
-                }
-
+                processed_pages += 0.4;
+                int val = 100.0*processed_pages / options.file_list.size;
+				if (val > 100) {
+					val = 100;
+				}
+				print_progress(val);
             }
         }
         mdjvu_image_destroy(dict);
@@ -636,6 +635,7 @@ static void multipage_encode()
         mdjvu_save_djvu_dir(elements, sizes, el_size, options.output_file, &error);
     }
 
+    print_progress(100.0);
     MDJVU_FREEV(files);
     MDJVU_FREEV(elements);
     MDJVU_FREEV(sizes);
