@@ -654,7 +654,7 @@ void app_options_set_output_file(struct AppOptions* opts, const char* filename)
             file = filename+idx+1;
             char* path = NULL;
             copy_str_alloc(&path, filename);
-            path[idx] = '\0';
+            path[idx+1] = '\0';
 #ifndef _WIN32
             if (chdir(path)==-1) {
 #else
