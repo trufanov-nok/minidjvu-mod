@@ -26,6 +26,11 @@ SettingsReader::~SettingsReader()
     }
 }
 
+void _print_djbz_error()
+{
+    std::cerr << _("Error: \"djbz\" settings lists must be declared after \"options\" and \"input-files\" lists.\n");
+}
+
 bool
 SettingsReader::readAllOptions()
 {
@@ -46,16 +51,29 @@ SettingsReader::readAllOptions()
         return false;
     }
 
-    int app_options_found = 0;
     int input_files_found = 0;
+    int djbz_settings_found = 0;
 
     while (c != EOF) {
 
         GUTF8String token = pbs.get_token();
+
+        int i = token.search(')');
+        if (i > 0) {
+            for (int j = token.length()-1; j >= i; j--) {
+                pbs.unget(token[j]);
+            }
+            token = token.substr(0, i);
+        }
+
         if (token == "options") {
-            app_options_found = 1;
+
             if ( input_files_found ) {
                 std::cerr << _("Error: \"options\" list must be declared before \"input-files\" lists.\n");
+                return false;
+            }
+            if (djbz_settings_found) {
+                _print_djbz_error();
                 return false;
             }
             if (!readAppOptions())
@@ -65,8 +83,9 @@ SettingsReader::readAllOptions()
             if (!readInputFiles(&m_appOptions->file_list, false))
                 return false;
         } else if (token == "djbz") {
-            if ( !app_options_found || !input_files_found ) {
-                std::cerr << _("Error: \"djbz\" settings lists must be declared after \"options\" and \"input-files\" lists.\n");
+            djbz_settings_found = 1;
+            if ( !input_files_found ) {
+                _print_djbz_error();
                 return false;
             }
             struct DjbzOptions* djbz = djbz_setting_create(m_appOptions->default_djbz_options);
