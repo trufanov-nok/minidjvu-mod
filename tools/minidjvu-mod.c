@@ -726,7 +726,8 @@ static void process_options(int argc, char **argv)
             if (i == argc) show_usage_and_exit();
             options.default_image_options->dpi = atoi(argv[i]);
             options.default_image_options->dpi_specified = 1;
-            if (options.default_image_options->dpi < 20 || options.default_image_options->dpi > 2000)
+            if ( (options.default_image_options->dpi < 20) ||
+                 (options.default_image_options->dpi > 2000) )
             {
                 fprintf(stderr, _("bad resolution\n"));
                 exit(2);
@@ -793,7 +794,9 @@ static void process_options(int argc, char **argv)
 
     if (settings_file_idx != -1) {
         // read settings file as a last step
-        read_app_options_from_file(argv[settings_file_idx], &options);
+        if (!read_app_options_from_file(argv[settings_file_idx], &options)) {
+            exit(3);
+        }
     }
 
     app_options_autocomplete_djbzs(&options);
