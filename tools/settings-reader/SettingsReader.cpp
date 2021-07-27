@@ -31,6 +31,28 @@ void _print_djbz_error()
     std::cerr << _("Error: \"djbz\" settings lists must be declared after \"options\" and \"input-files\" lists.\n");
 }
 
+GUTF8String get_clean_token(ParsingByteStream& pbs)
+{
+    GUTF8String token = pbs.get_token(true);
+    int i = token.search(')');
+    if (i > 0) {
+        for (int j = token.length()-1; j >= i; j--) {
+            pbs.unget(token[j]);
+        }
+        token = token.substr(0, i);
+    }
+
+    if (token.length() > 1 && token[0] == ')') {
+        // case "))" at the end of nested list
+        for (int j = token.length()-1; j >= 1; j--) {
+            pbs.unget(token[j]);
+        }
+        token = token[0];
+    }
+    return token;
+}
+
+
 bool
 SettingsReader::readAllOptions()
 {
@@ -56,15 +78,8 @@ SettingsReader::readAllOptions()
 
     while (c != EOF) {
 
-        GUTF8String token = pbs.get_token();
-
-        int i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i);
-        }
+        GUTF8String token = get_clean_token(pbs);
+        token = token.downcase();
 
         if (token == "options") {
 
@@ -155,14 +170,8 @@ SettingsReader::readAppOptions()
 
     GUTF8String token; GUTF8String val; int i;
     while (true) {
-        token = pbs.get_token(true).downcase();
-        i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i).downcase();
-        }
+        token = get_clean_token(pbs);
+        token = token.downcase();
 
         if (!token || token[0] == ')') {
             break;
@@ -270,17 +279,10 @@ SettingsReader::readImageOptions(struct ImageOptions* opts)
     ParsingByteStream& pbs = **m_bs;
 
     GUTF8String token;
-    GUTF8String val;
 
     while (true) {
-        token = pbs.get_token(true).downcase();
-        int i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i).downcase();
-        }
+        token = get_clean_token(pbs);
+        token = token.downcase();
 
         if (!token || token[0] == ')') {
             break;
@@ -345,7 +347,6 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
 
     GUTF8String orig_token;
     GUTF8String token;
-    GUTF8String val;
     GUTF8String filename;
 
     auto opts = std::unique_ptr< struct ImageOptions, void(*)(void*)>{ nullptr, free };
@@ -355,15 +356,8 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
     int page_end = 0;
 
     while (true) {
-        orig_token = pbs.get_token(true);
+        orig_token = get_clean_token(pbs);
         token = orig_token.downcase();
-        int i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i).downcase();
-        }
 
         if (!token || token[0] == ')') {
             break;
@@ -440,14 +434,8 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
     int old_cnt = file_list->size;
 
     while (true) {
-        token = pbs.get_token(true);
-        int i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i);
-        }
+        token = get_clean_token(pbs);
+        token = token.downcase();
 
         if (!token || token[0] == ')') {
             break;
@@ -525,14 +513,8 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
     GUTF8String token; GUTF8String val; int i;
 
     while (true) {
-        token = pbs.get_token(true).downcase();
-        i = token.search(')');
-        if (i > 0) {
-            for (int j = token.length()-1; j >= i; j--) {
-                pbs.unget(token[j]);
-            }
-            token = token.substr(0, i).downcase();
-        }
+        token = get_clean_token(pbs);
+        token = token.downcase();
 
         if (!token || token[0] == ')') {
             break;
