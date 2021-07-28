@@ -576,7 +576,7 @@ static void multipage_encode()
     } //  #pragma omp parallel
 
     // Saving document directory
-    // Let's contruct page chunks in a right order.
+    // Let's construct page chunks in a right order.
     int el_size = options.file_list.size + options.djbz_list.size; // max
     char **elements = MDJVU_MALLOCV(char *, el_size);
     int  *sizes     = MDJVU_MALLOCV(int, el_size);
@@ -666,7 +666,7 @@ static void process_options(int argc, char **argv)
     if (argc > 0) {
         // initialize output_file first as we may need to
         // change working dir during that
-        // to create chunk files for inderect mode
+        // to create chunk files for indirect mode
         app_options_set_output_file(&options, argv[argc - 1]);
         argc--;
     } else {
