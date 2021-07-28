@@ -64,9 +64,12 @@ static mdjvu_bitmap_t load_tiff(const char *path, int32 *presolution, mdjvu_erro
     }
 
     /* get the resolution */
-    if (presolution && TIFFGetFieldDefaulted(tiff, TIFFTAG_XRESOLUTION, &dpi))
-    {
-        *presolution = (int32) dpi;
+    if (presolution) {
+        *presolution = -1;
+        if (TIFFGetFieldDefaulted(tiff, TIFFTAG_XRESOLUTION, &dpi))
+        {
+            *presolution = (int32) dpi;
+        }
     }
 
     result = mdjvu_bitmap_create(w, h);

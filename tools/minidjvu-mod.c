@@ -209,14 +209,14 @@ static mdjvu_bitmap_t load_bitmap(struct InputFile* in)
     mdjvu_error_t error = NULL;
     mdjvu_bitmap_t bitmap;
 
-    int* dpi_to_read = &in->output_dpi;
-    if (options.default_image_options->dpi_specified) {
-        in->output_dpi = options.default_image_options->dpi;
-        dpi_to_read = NULL;
+    int detect_dpi = 1;
+    in->output_dpi = options.default_image_options->dpi;
+    if (options.default_image_options->dpi_specified) { // default dpi is overwritten
+        detect_dpi = 0;
     }
-    if (in->image_options && in->image_options->dpi_specified) {
+    if (in->image_options && in->image_options->dpi_specified) { // image dpi is overwritten
         in->output_dpi = in->image_options->dpi;
-        dpi_to_read = NULL;
+        detect_dpi = 0;
     }
 
     const struct ImageOptions* img_opts = in->image_options ? in->image_options : options.default_image_options;
@@ -233,8 +233,17 @@ static mdjvu_bitmap_t load_bitmap(struct InputFile* in)
         if (options.verbose) printf(_("loading from TIFF file `%s'\n"), in->name);
         if (!options.warnings)
             mdjvu_disable_tiff_warnings();
-        bitmap = mdjvu_load_tiff(in->name, dpi_to_read, &error, in->page);
-        if (options.verbose) printf(_("resolution is %d dpi\n"), options.default_image_options->dpi);
+        int dpi_from_file = -1;
+        bitmap = mdjvu_load_tiff(in->name, detect_dpi ? &dpi_from_file : NULL, &error, in->page);
+        if (detect_dpi && dpi_from_file != -1) { // we tried to read dpi from file
+            if (dpi_from_file < 20 || dpi_from_file > 2000) {
+                if (options.verbose) printf(_("Warning: image %s reports incorrect DPI value (%d) and default resolution %d will be used\n"), in->name, dpi_from_file, in->output_dpi);
+            } else {
+                in->output_dpi = dpi_from_file;
+            }
+        }
+
+        if (options.verbose) printf(_("resolution is %d dpi\n"), in->output_dpi);
     }
     else if (decide_if_djvu(in->name))
     {

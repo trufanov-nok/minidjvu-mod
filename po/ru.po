@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Minidjvu 0.9m02\n"
 "Report-Msgid-Bugs-To: trufanovan@gmail.com\n"
-"POT-Creation-Date: 2021-07-01 12:41+0300\n"
+"POT-Creation-Date: 2021-07-28 13:26+0300\n"
 "PO-Revision-Date: 2009-06-27 14:05+0400\n"
 "Last-Translator: Alexander Trufanov <trufanovan@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -585,42 +585,50 @@ msgstr "загрузка изображения из файла Windows BMP `%s'
 msgid "loading from TIFF file `%s'\n"
 msgstr "загрузка изображения из файла TIFF `%s'\n"
 
-#: tools/minidjvu-mod.c:237
+#: tools/minidjvu-mod.c:240
+#, c-format
+msgid ""
+"Warning: image %s reports incorrect DPI value (%d) and default resolution %d "
+"will be used\n"
+msgstr "Внимание: изображение %s содержит неверное значение DPI (%d) и разрешение %d "
+"будет использовано вместо него\n"
+
+#: tools/minidjvu-mod.c:246
 #, c-format
 msgid "resolution is %d dpi\n"
 msgstr "разрешение составляет %d dpi\n"
 
-#: tools/minidjvu-mod.c:246 tools/minidjvu-mod.c:320
+#: tools/minidjvu-mod.c:255 tools/minidjvu-mod.c:329
 #, c-format
 msgid "bitmap %d x %d rendered\n"
 msgstr "загружено битовое изображение %d x %d\n"
 
-#: tools/minidjvu-mod.c:253
+#: tools/minidjvu-mod.c:262
 #, c-format
 msgid "loading from PBM file `%s'\n"
 msgstr "загрузка изображения из файла PBM `%s'\n"
 
-#: tools/minidjvu-mod.c:266 tools/minidjvu-mod.c:330
+#: tools/minidjvu-mod.c:275 tools/minidjvu-mod.c:339
 #, c-format
 msgid "smoothing the bitmap\n"
 msgstr "сглаживание битового изображения\n"
 
-#: tools/minidjvu-mod.c:280
+#: tools/minidjvu-mod.c:289
 #, c-format
 msgid "saving to Windows BMP file `%s'\n"
 msgstr "сохранение в файл Windows BMP `%s'\n"
 
-#: tools/minidjvu-mod.c:285
+#: tools/minidjvu-mod.c:294
 #, c-format
 msgid "saving to TIFF file `%s'\n"
 msgstr "сохранение в файл TIFF `%s'\n"
 
-#: tools/minidjvu-mod.c:292
+#: tools/minidjvu-mod.c:301
 #, c-format
 msgid "saving to PBM file `%s'\n"
 msgstr "сохранение в файл PBM `%s'\n"
 
-#: tools/minidjvu-mod.c:310
+#: tools/minidjvu-mod.c:319
 #, c-format
 msgid ""
 "\n"
@@ -629,7 +637,7 @@ msgstr ""
 "\n"
 "ДЕКОДИРОВАНИЕ\n"
 
-#: tools/minidjvu-mod.c:311 tools/minidjvu-mod.c:385
+#: tools/minidjvu-mod.c:320 tools/minidjvu-mod.c:394
 #, c-format
 msgid ""
 "________\n"
@@ -638,34 +646,34 @@ msgstr ""
 "___________\n"
 "\n"
 
-#: tools/minidjvu-mod.c:342
+#: tools/minidjvu-mod.c:351
 #, c-format
 msgid "splitting the bitmap into pieces\n"
 msgstr "разбивка битового изображение на участки\n"
 
-#: tools/minidjvu-mod.c:351
+#: tools/minidjvu-mod.c:360
 #, c-format
 msgid "creating virtual empty image(%d, %d, dpi: %d) in place of file `%s`\n"
 msgstr ""
 "создание виртуального пустого изображения(%d, %d, dpi: %d) вместо файла `"
 "%s`\n"
 
-#: tools/minidjvu-mod.c:361
+#: tools/minidjvu-mod.c:370
 #, c-format
 msgid "the split image has %d pieces\n"
 msgstr "после разбиения картинка состоит из %d участков\n"
 
-#: tools/minidjvu-mod.c:367
+#: tools/minidjvu-mod.c:376
 #, c-format
 msgid "cleaning\n"
 msgstr "очистка\n"
 
-#: tools/minidjvu-mod.c:371
+#: tools/minidjvu-mod.c:380
 #, c-format
 msgid "the cleaned image has %d pieces\n"
 msgstr "после очистки картинка состоит из %d участков\n"
 
-#: tools/minidjvu-mod.c:384
+#: tools/minidjvu-mod.c:393
 #, c-format
 msgid ""
 "\n"
@@ -674,7 +682,7 @@ msgstr ""
 "\n"
 "КОДИРОВАНИЕ\n"
 
-#: tools/minidjvu-mod.c:406
+#: tools/minidjvu-mod.c:415
 #, c-format
 msgid ""
 "\n"
@@ -683,7 +691,7 @@ msgstr ""
 "\n"
 "ФИЛЬТРОВКА\n"
 
-#: tools/minidjvu-mod.c:407
+#: tools/minidjvu-mod.c:416
 #, c-format
 msgid ""
 "_________\n"
@@ -692,24 +700,24 @@ msgstr ""
 "__________\n"
 "\n"
 
-#: tools/minidjvu-mod.c:419
+#: tools/minidjvu-mod.c:428
 #, c-format
 msgid "[%02d."
 msgstr "[%02d."
 
-#: tools/minidjvu-mod.c:420
+#: tools/minidjvu-mod.c:429
 #, c-format
 msgid "%02d%%]\n"
 msgstr "%02d%%]\n"
 
-#: tools/minidjvu-mod.c:428
+#: tools/minidjvu-mod.c:437
 #, c-format
 msgid "when encoding many pages, output file must be DjVu\n"
 msgstr ""
 "при многостраничном кодировании результирующий файл должен быть в формате "
 "DjVu\n"
 
-#: tools/minidjvu-mod.c:437
+#: tools/minidjvu-mod.c:446
 #, c-format
 msgid ""
 "\n"
@@ -718,7 +726,7 @@ msgstr ""
 "\n"
 "МНОГОСТРАНИЧНОЕ КОДИРОВАНИЕ\n"
 
-#: tools/minidjvu-mod.c:438
+#: tools/minidjvu-mod.c:447
 #, c-format
 msgid ""
 "__________________\n"
@@ -727,49 +735,49 @@ msgstr ""
 "___________________________\n"
 "\n"
 
-#: tools/minidjvu-mod.c:439
+#: tools/minidjvu-mod.c:448
 #, c-format
 msgid "%d pages total\n"
 msgstr "всего %d страниц\n"
 
-#: tools/minidjvu-mod.c:495
+#: tools/minidjvu-mod.c:499
 #, c-format
 msgid "Loading: %d of %d completed\n"
 msgstr "Загрузка: выполнено %d из %d\n"
 
-#: tools/minidjvu-mod.c:531
+#: tools/minidjvu-mod.c:535
 #, c-format
 msgid "saving page #%d into %s using dictionary %s\n"
 msgstr "сохранение страницы #%d в файл %s с использованием словаря %s\n"
 
-#: tools/minidjvu-mod.c:533
+#: tools/minidjvu-mod.c:537
 #, c-format
 msgid "saving page #%d into %s omitting dictionary %s as it's empty\n"
 msgstr ""
 "сохранение страницы #%d в файл %s без использования словаря %s, т.к. он "
 "пуст\n"
 
-#: tools/minidjvu-mod.c:561
+#: tools/minidjvu-mod.c:573
 #, c-format
 msgid "Saving: %d of %d completed\n"
 msgstr "Сохранение: выполнено %d из %d\n"
 
-#: tools/minidjvu-mod.c:719
+#: tools/minidjvu-mod.c:731
 #, c-format
 msgid "bad --pages-per-dict value\n"
 msgstr "неподходящее значение --pages-per-dict\n"
 
-#: tools/minidjvu-mod.c:731
+#: tools/minidjvu-mod.c:744
 #, c-format
 msgid "bad resolution\n"
 msgstr "неподходящее разрешение\n"
 
-#: tools/minidjvu-mod.c:779
+#: tools/minidjvu-mod.c:792
 #, c-format
 msgid "unknown option: %s\n"
 msgstr "неизвестный параметр: %s\n"
 
-#: tools/minidjvu-mod.c:833
+#: tools/minidjvu-mod.c:848
 #, c-format
 msgid "alive_bitmap_counter = %d\n"
 msgstr "счетчик битовых изображений = %d\n"
@@ -871,21 +879,7 @@ msgstr "Невозможно удалить файл (errno: %s)\n"
 msgid "ERROR: can't change working directory to: %s\n"
 msgstr "ОШИБКА: не удается изменить рабочую директорию на %s\n"
 
-#: tools/settings-reader/SettingsReader.cpp:40
-msgid "Empty file or can't be read\n"
-msgstr "Файл пуст или не может быть прочитан\n"
-
-#: tools/settings-reader/SettingsReader.cpp:45
-msgid "Syntax error in settings file: expecting '('\n"
-msgstr "Ошибка синтаксиса в файле настроек: ожидается '('\n"
-
-#: tools/settings-reader/SettingsReader.cpp:58
-msgid ""
-"Error: \"options\" list must be declared before \"input-files\" lists.\n"
-msgstr ""
-"Ошибка: список \"options\" должен объявляться до списка \"input-files\".\n"
-
-#: tools/settings-reader/SettingsReader.cpp:69
+#: tools/settings-reader/SettingsReader.cpp:31
 msgid ""
 "Error: \"djbz\" settings lists must be declared after \"options\" and "
 "\"input-files\" lists.\n"
@@ -893,7 +887,21 @@ msgstr ""
 "Ошибка: списки настроек \"djbz\" должны объявляться после списков \"options"
 "\" и \"input-files\".\n"
 
-#: tools/settings-reader/SettingsReader.cpp:79
+#: tools/settings-reader/SettingsReader.cpp:67
+msgid "Empty file or can't be read\n"
+msgstr "Файл пуст или не может быть прочитан\n"
+
+#: tools/settings-reader/SettingsReader.cpp:72
+msgid "Syntax error in settings file: expecting '('\n"
+msgstr "Ошибка синтаксиса в файле настроек: ожидается '('\n"
+
+#: tools/settings-reader/SettingsReader.cpp:87
+msgid ""
+"Error: \"options\" list must be declared before \"input-files\" lists.\n"
+msgstr ""
+"Ошибка: список \"options\" должен объявляться до списка \"input-files\".\n"
+
+#: tools/settings-reader/SettingsReader.cpp:113
 msgid ""
 "Syntax error in settings file: expecting '(options', '(input-files' or "
 "'(djbz'\n"
@@ -901,7 +909,7 @@ msgstr ""
 "Ошибка синтаксиса в файле настроек: ожидалось '(options', '(input-files' или "
 "'(djbz'\n"
 
-#: tools/settings-reader/SettingsReader.cpp:169
+#: tools/settings-reader/SettingsReader.cpp:197
 #, c-format
 msgid ""
 "ERROR: only \"default-djbz\" or \"default-image\" lists could be nested in "
@@ -910,28 +918,28 @@ msgstr ""
 "ОШИБКА: только списки \"default-djbz\" или \"default-image\" могут быть "
 "вложены в список \"options\", но обнаружено %s !\n"
 
-#: tools/settings-reader/SettingsReader.cpp:214
+#: tools/settings-reader/SettingsReader.cpp:242
 #, c-format
 msgid "Wrong options token: \"%s\"\n"
 msgstr "Неизвестный параметр в options: %s\n"
 
-#: tools/settings-reader/SettingsReader.cpp:284
+#: tools/settings-reader/SettingsReader.cpp:305
 #, c-format
 msgid "Wrong image token:\"%s\"\n"
 msgstr "Неизвестный параметр в image: %s\n"
 
-#: tools/settings-reader/SettingsReader.cpp:367
+#: tools/settings-reader/SettingsReader.cpp:380
 #, c-format
 msgid "ERROR: only \"image\" list could be nested in \"file\", but %s found!\n"
 msgstr ""
 "ОШИБКА: только список \"image\" может быть вложен в \"file\", но обнаружено "
 "%s !\n"
 
-#: tools/settings-reader/SettingsReader.cpp:389
+#: tools/settings-reader/SettingsReader.cpp:402
 msgid "ERROR: No any files are listed after file token!\n"
 msgstr "ОШИБКА: в списке file не перечислено ни одного файла!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:449
+#: tools/settings-reader/SettingsReader.cpp:456
 #, c-format
 msgid ""
 "ERROR: only \"file\" list could be nested in \"input-files\" list, but %s "
@@ -940,16 +948,16 @@ msgstr ""
 "ОШИБКА: только список \"file\" может быть вложен в список \"input-files\", "
 "но обнаружено %s !\n"
 
-#: tools/settings-reader/SettingsReader.cpp:462
+#: tools/settings-reader/SettingsReader.cpp:469
 msgid "No any files are listed after input-files token!\n"
 msgstr "В списке input-files не перечислено ни одного файла!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:524
+#: tools/settings-reader/SettingsReader.cpp:525
 msgid "ERROR: no nested lists are allowed in \"default-djbz\"!\n"
 msgstr ""
 "ОШИБКА: никаких вложенных списков не допускается в списке \"default-djbz\"!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:538
+#: tools/settings-reader/SettingsReader.cpp:539
 #, c-format
 msgid ""
 "ERROR: only \"files\" list could be nested in \"djbz\" list, but %s found!\n"
@@ -957,32 +965,32 @@ msgstr ""
 "ОШИБКА: только список \"files\" может быть вложен в список \"djbz\", но "
 "обнаружено %s !\n"
 
-#: tools/settings-reader/SettingsReader.cpp:546
+#: tools/settings-reader/SettingsReader.cpp:547
 msgid "ERROR: id option isn't allowed in \"default-djbz\"!\n"
 msgstr "ОШИБКА: параметр id не должен указываться в \"default-djbz\"!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:567
+#: tools/settings-reader/SettingsReader.cpp:568
 #, c-format
 msgid "Wrong djbz setting: %s\n"
 msgstr "Неверный параметр djbz: %s\n"
 
-#: tools/settings-reader/SettingsReader.cpp:575
+#: tools/settings-reader/SettingsReader.cpp:576
 msgid "id is missing in djbz list!\n"
 msgstr "параметр id не указан в списке djbz!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:580
+#: tools/settings-reader/SettingsReader.cpp:581
 #, c-format
 msgid "djbz list with id \"%s\" contains no files!\n"
 msgstr "список djbz с id \"%s\" не содержит файлов!\n"
 
-#: tools/settings-reader/SettingsReader.cpp:611
+#: tools/settings-reader/SettingsReader.cpp:612
 #, c-format
 msgid "Wrong \"%s\" value: \"%s\". Integer from %d to %d is expected.\n"
 msgstr ""
 "Параметр \"%s\" содержит неверное значение: \"%s\". Ожидается число от %d до "
 "%d.\n"
 
-#: tools/settings-reader/SettingsReader.cpp:633
+#: tools/settings-reader/SettingsReader.cpp:634
 #, c-format
 msgid "\"%s\" argument is missing!\n"
 msgstr "Аргумент параметра \"%s\" отсутствует!\n"
