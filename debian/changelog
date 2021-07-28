@@ -1,3 +1,13 @@
+minidjvu-mod (0.9m03) bionic; urgency=medium
+
+  * Fix a bug with -p 0 usage
+  * Fix a crash if tiff images report 0 dpi
+  * Fix multipage encoding if doc contains several equal but non-empty pages
+  * Make "options" list optional in settings file
+  * Allow "))" (no space between) parenthesis in settings file
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Wed, 28 Jul 2021 13:33:00 +0300
+
 minidjvu-mod (0.9m02) bionic; urgency=medium
 
   * Settings file support
