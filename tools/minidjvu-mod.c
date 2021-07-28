@@ -536,9 +536,17 @@ static void multipage_encode()
 
             const struct ImageOptions* const img_opts = in->image_options ? in->image_options : options.default_image_options;
 
+            const char * dict_chunk = djbz->chunk_id;
             // if chunk is NULL the pages are saved without reference to djbz
-            const char * dict_chunk = (djbz->do_not_save ||
-                                       mdjvu_image_get_bitmap_count(images[i]) == 0 ) ? NULL : djbz->chunk_id;
+            if (djbz->do_not_save) {
+                dict_chunk = NULL;
+            } else {
+                int b = mdjvu_image_get_bitmap_count(images[i]);
+                int n = mdjvu_image_get_blit_count(images[i]);
+                if (n+b == 0) {
+                    dict_chunk = NULL;
+                }
+            }
 
             chunk_file_open(&in->chunk_file);
             if (!options.save_as_chunk) {
