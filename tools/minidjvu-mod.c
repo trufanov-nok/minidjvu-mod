@@ -440,11 +440,6 @@ static void multipage_encode()
     }
 
     /* compressing */
-    if (options.pages_per_dict <= 0) {
-        options.pages_per_dict = options.file_list.size;
-    } else if (options.pages_per_dict > options.file_list.size) {
-        options.pages_per_dict = options.file_list.size;
-    }
 
 #ifdef _OPENMP
     if (!options.max_threads) {

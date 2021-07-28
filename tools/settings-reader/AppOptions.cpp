@@ -675,6 +675,10 @@ void app_options_set_output_file(struct AppOptions* opts, const char* filename)
 
 void app_options_autocomplete_djbzs(struct AppOptions* opts)
 {
+    if (opts->pages_per_dict <= 0) {
+        opts->pages_per_dict = opts->file_list.size;
+    }
+
     struct DjbzOptions * new_djbz = djbz_setting_create(opts->default_djbz_options);
     for(int i = 0; i < opts->file_list.size; i++) {
         struct InputFile* in = opts->file_list.files[i];
