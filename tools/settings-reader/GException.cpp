@@ -157,7 +157,8 @@ void
 GException::perror(void) const
 {
   fflush(0);
-  DjVuPrintErrorUTF8("*** ");
+  if (cause)
+    DjVuPrintErrorUTF8("*** %s\n", cause);
 //  DjVuMessageLite::perror(get_cause());
   if (file && line>0)
     DjVuPrintErrorUTF8("*** (%s:%d)\n", file, line);    
