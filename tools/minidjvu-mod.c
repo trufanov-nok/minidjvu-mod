@@ -30,7 +30,7 @@ struct AppOptions options;
 
 static void show_usage_and_exit(void)           /* {{{ */
 {
-    const char *what_it_does = _("encode/decode bitonal DjVu files");
+    const char *what_it_does = _("encodes/decodes bitonal DjVu files");
     if (strcmp(MDJVU_VERSION, mdjvu_get_version()))
     {
         printf(_("minidjvu-mod - %s\n"), what_it_does);
@@ -44,10 +44,10 @@ static void show_usage_and_exit(void)           /* {{{ */
 
     }
     printf(_("Usage:\n"));
-    printf(_("single page encoding/decoding:\n"));
+    printf(_("single-page encoding/decoding:\n"));
     printf(_("    minidjvu-mod [options] <input file> <output file>\n"));
-    printf(_("multiple pages encoding:\n"));
-    printf(_("    minidjvu-mod [options] <input file> ... <output file>\n"));
+    printf(_("multiple-page encoding:\n"));
+    printf(_("    minidjvu-mod [options] <input files> ... <output file>\n"));
     printf(_("Formats supported:\n"));
 
     printf(_("    DjVu (single-page bitonal), PBM, Windows BMP"));
@@ -60,9 +60,9 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("    -A, --Averaging:               compute \"average\" representatives\n"));
     printf(_("    -a <n>, --aggression <n>:      set aggression level (default 100)\n"));
     printf(_("    -C <n>, --Classifier <n>:      set symbols classifier mode (default 3)\n"));
-    printf(_("                                   1 - behave similar to original one.\n"));
-    printf(_("                                   2 - make additional efforts to achieve\n"));
-    printf(_("                                       better compression. This require\n"));
+    printf(_("                                   1 - behaves similar to original one.\n"));
+    printf(_("                                   2 - makes additional efforts to achieve\n"));
+    printf(_("                                       better compression. This requires\n"));
     printf(_("                                       more CPU time and much more RAM\n"));
     printf(_("                                       as cache is allocated per thread.\n"));
     printf(_("                                   3 - similar to 2 but takes even more\n"));
@@ -75,9 +75,9 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("                                       to save some RAM at the cost of time.\n"));
     printf(_("                                       Or decrease pages per dict at a cost\n"));
     printf(_("                                       of filesize (not recommended).\n"));
-    printf(_("    -c, --clean                    remove small black pieces\n"));
-    printf(_("    -d <n> --dpi <n>:              set resolution in dots per inch\n"));
-    printf(_("    -e, --erosion                  sacrifice quality to gain in size\n"));
+    printf(_("    -c, --clean:                   remove small black pieces\n"));
+    printf(_("    -d <n>, --dpi <n>:             set resolution in dots per inch\n"));
+    printf(_("    -e, --erosion:                 sacrifice quality to gain in size\n"));
     printf(_("    -i, --indirect:                generate an indirect multipage document\n"));
     printf(_("    -j, --jb2:                     save pages as jb2 chunks instead of djvu.\n"));
     printf(_("                                   implies indirect mode.\n"));
@@ -86,15 +86,16 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("    -n, --no-prototypes:           do not search for prototypes\n"));
     printf(_("    -p <n>, --pages-per-dict <n>:  pages per dictionary (default 10)\n"));
     printf(_("    -r, --report:                  report multipage coding progress\n"));
-    printf(_("    -s, --smooth:                  remove some badly looking pixels\n"));
-    printf(_("    -S <settings-file>,            read document settings from <settings-file>.\n"));
-    printf(_("                                   Some command line options may be overriden.\n"));
-    printf(_("                                   Details could be found in documentation (man pages).\n"));
+    printf(_("    -s, --smooth:                  remove some bad-looking pixels\n"));
+    printf(_("    -S <settings-file>:            read document settings from <settings-file>.\n"));
+    printf(_("                                   <settings-file> must be a .txt file.\n"));
+    printf(_("                                   Some command-line options may be overridden.\n"));
+    printf(_("                                   Details can be found in documentation (man pages).\n"));
 #ifdef _OPENMP
-    printf(_("    -t <n>, --threads-max <n>:     process pages assigned to a different\n"));
+    printf(_("    -t <n>, --threads-max <n>:     process pages assigned to different\n"));
     printf(_("                                   dictionaries in up to N parallel threads.\n"));
     printf(_("                                   By default N is equal to the number of \n"));
-    printf(_("                                   CPU cores in case there're 1 or 2 \n"));
+    printf(_("                                   CPU cores if there are 1 or 2 \n"));
     printf(_("                                   and number of CPU cores minus 1 otherwise.\n"));
     printf(_("                                   Specify -t 1 to disable multithreading\n"));
 #endif
