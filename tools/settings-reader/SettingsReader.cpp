@@ -430,12 +430,13 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
 {
     ParsingByteStream& pbs = **m_bs;
 
+    GUTF8String orig_token;
     GUTF8String token;
     int old_cnt = file_list->size;
 
     while (true) {
-        token = get_clean_token(pbs);
-        token = token.downcase();
+        orig_token = get_clean_token(pbs);
+        token = orig_token.downcase();
 
         if (!token || token[0] == ')') {
             break;
@@ -459,9 +460,9 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
         }
 
         if (ref_only) {
-            file_list_add_ref(file_list, &m_appOptions->file_list, token.getUTF82Native().getbuf());
+            file_list_add_ref(file_list, &m_appOptions->file_list, orig_token.getUTF82Native().getbuf());
         } else {
-            file_list_add_filename(file_list, token.getUTF82Native().getbuf(), NULL);
+            file_list_add_filename(file_list, orig_token.getUTF82Native().getbuf(), NULL);
         }
     }
 
