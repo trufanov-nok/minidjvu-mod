@@ -1,4 +1,9 @@
 ---
+0.9m04
+---
+    Fixed a bug with case-sensitive filesystems
+
+---
 0.9m03
 ---
     Multiple bugs fixed.

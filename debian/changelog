@@ -1,3 +1,9 @@
+minidjvu-mod (0.9m04) bionic; urgency=medium
+
+  * Fix a bug with case-sensitive filesystems
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Thu, 12 Aug 2021 17:40:00 +0300
+
 minidjvu-mod (0.9m03) bionic; urgency=medium
 
   * Fix a bug with -p 0 usage
