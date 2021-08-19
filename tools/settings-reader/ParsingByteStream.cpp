@@ -226,8 +226,12 @@ ParsingByteStream::get_error_context(int c)
 }
 
 GUTF8String
-ParsingByteStream::get_token(bool skipseparator, bool compat)
+ParsingByteStream::get_token(bool skipseparator, bool* delimited, bool compat)
 {
+  if (delimited) {
+      *delimited = false;
+  }
+
   GUTF8String str;
   int c = get_spaces(skipseparator);
   if (c == EOF)
@@ -252,6 +256,9 @@ ParsingByteStream::get_token(bool skipseparator, bool compat)
   else 
     {
       int delim = c;
+      if (delimited) {
+          *delimited = true;
+      }
       c = get();
       while (c != delim && c!=EOF) 
         {

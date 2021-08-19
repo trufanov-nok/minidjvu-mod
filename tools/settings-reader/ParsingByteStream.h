@@ -89,7 +89,7 @@ public:
   int unget(int c);
   inline int get();
   int get_spaces(bool skipseparator=false);
-  GUTF8String get_token(bool skipseparator=false, bool compat=false);
+  GUTF8String get_token(bool skipseparator=false, bool* delimited = nullptr, bool compat=false);
   const char *get_error_context(int c=EOF);
 };
 

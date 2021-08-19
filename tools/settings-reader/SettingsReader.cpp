@@ -33,13 +33,16 @@ void _print_djbz_error()
 
 GUTF8String get_clean_token(ParsingByteStream& pbs)
 {
-    GUTF8String token = pbs.get_token(true);
-    int i = token.search(')');
-    if (i > 0) {
-        for (int j = token.length()-1; j >= i; j--) {
-            pbs.unget(token[j]);
+    bool delimited;
+    GUTF8String token = pbs.get_token(true, &delimited);
+    if (!delimited) {
+        int i = token.search(')');
+        if (i > 0) {
+            for (int j = token.length()-1; j >= i; j--) {
+                pbs.unget(token[j]);
+            }
+            token = token.substr(0, i);
         }
-        token = token.substr(0, i);
     }
 
     if (token.length() > 1 && token[0] == ')') {
@@ -595,25 +598,28 @@ bool
 SettingsReader::readValInt(const char* name, int& src, int min, int max)
 {
     ParsingByteStream& pbs = **m_bs;
-    GUTF8String val = pbs.get_token(true);
+    bool delimited;
+    GUTF8String val = pbs.get_token(true, &delimited);
 
-    int i = val.search(')');
-    if (i > 0) {
-        for (int j = val.length()-1; j >= i; j--) {
-            pbs.unget(val[j]);
+    if (!delimited) {
+        int i = val.search(')');
+        if (i > 0) {
+            for (int j = val.length()-1; j >= i; j--) {
+                pbs.unget(val[j]);
+            }
+            val = val.substr(0, i);
         }
-        val = val.substr(0, i);
     }
 
-    i = -99999;
+    int res = -99999;
     if (!!val && val.is_int()) {
-        i = val.toInt();
+        res = val.toInt();
     }
-    if (i < min || i > max) {
+    if (res < min || res > max) {
         fprintf(stderr, _("Wrong \"%s\" value: \"%s\". Integer from %d to %d is expected.\n"), name, val.getbuf(), min, max);
         return false;
     }
-    src = i;
+    src = res;
     return true;
 }
 
@@ -621,14 +627,17 @@ bool
 SettingsReader::readValStr(const char* name, GUTF8String &src)
 {
     ParsingByteStream& pbs = **m_bs;
-    GUTF8String val = pbs.get_token(true);
+    bool delimited;
+    GUTF8String val = pbs.get_token(true, &delimited);
 
-    int i = val.search(')');
-    if (i > 0) {
-        for (int j = val.length()-1; j >= i; j--) {
-            pbs.unget(val[j]);
+    if (!delimited) {
+        int i = val.search(')');
+        if (i > 0) {
+            for (int j = val.length()-1; j >= i; j--) {
+                pbs.unget(val[j]);
+            }
+            val = val.substr(0, i);
         }
-        val = val.substr(0, i);
     }
 
     if (!val || val.length() == 0) {
