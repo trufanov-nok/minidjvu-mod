@@ -176,9 +176,11 @@ MDJVU_IMPLEMENT int mdjvu_file_save_jb2(mdjvu_image_t image, mdjvu_file_t f, mdj
     if (dictionary && (n+b) > 0)
     {
         d = mdjvu_image_get_bitmap_count(dictionary);
-        jb2.open_record(jb2_require_dictionary_or_reset);
+        if (d) { // if dictionary isn't empty
+            jb2.open_record(jb2_require_dictionary_or_reset);
             zp.encode(d, jb2.required_dictionary_size);
-        jb2.close_record();
+            jb2.close_record();
+        }
     }
 
     /* opening record */
