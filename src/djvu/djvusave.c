@@ -56,13 +56,13 @@ MDJVU_IMPLEMENT int mdjvu_file_save_djvu_dir(char **elements, int *sizes,
 }
 
 MDJVU_IMPLEMENT int mdjvu_file_save_djvu_page(mdjvu_image_t image, mdjvu_file_t file,
-    const char *dict_name, int indirect, mdjvu_error_t *perr, int erosion)
+    const char *dict_name, int insert_magic, mdjvu_error_t *perr, int erosion)
 {
     mdjvu_iff_t FORM, INFO, INCL, Sjbz;
     int pos = ftell((FILE *) file);
     if (pos & 1) pos++;
 
-    if (indirect) {
+    if (insert_magic) {
         mdjvu_write_big_endian_int32(MDJVU_IFF_ID("AT&T"), file);
     }
     FORM = mdjvu_iff_write_chunk(MDJVU_IFF_ID("FORM"), file);
@@ -90,13 +90,13 @@ MDJVU_IMPLEMENT int mdjvu_file_save_djvu_page(mdjvu_image_t image, mdjvu_file_t 
 
 
 MDJVU_IMPLEMENT int mdjvu_file_save_djvu_dictionary(mdjvu_image_t image,
-    mdjvu_file_t file, int indirect, mdjvu_error_t *perr, int erosion)
+    mdjvu_file_t file, int insert_magic, mdjvu_error_t *perr, int erosion)
 {
     mdjvu_iff_t FORM, Djbz;
     int pos = ftell((FILE *) file);
     if (pos & 1) pos++;
 
-    if (indirect)
+    if (insert_magic)
         mdjvu_write_big_endian_int32(MDJVU_IFF_ID("AT&T"), file);
     FORM = mdjvu_iff_write_chunk(MDJVU_IFF_ID("FORM"), file);
         mdjvu_write_big_endian_int32(MDJVU_IFF_ID("DJVI"), file);
@@ -136,7 +136,7 @@ MDJVU_IMPLEMENT int mdjvu_save_djvu_page(mdjvu_image_t image, const char *path, 
         if (perr) *perr = mdjvu_get_error(mdjvu_error_fopen_write);
         return 0;
     }
-    result = mdjvu_file_save_djvu_page(image, (mdjvu_file_t) f, dict, 0, perr, erosion);
+    result = mdjvu_file_save_djvu_page(image, (mdjvu_file_t) f, dict, 1, perr, erosion);
     fclose(f);
     return result;
 }

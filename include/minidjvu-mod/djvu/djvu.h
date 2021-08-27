@@ -27,11 +27,11 @@ MDJVU_FUNCTION int mdjvu_file_save_djvu_dir( char **elements, int *sizes, int n,
 MDJVU_FUNCTION int mdjvu_save_djvu_dir(char **elements, int *sizes, int n, const char *path, mdjvu_error_t *perr);
 
 MDJVU_FUNCTION int mdjvu_file_save_djvu_page(mdjvu_image_t, mdjvu_file_t, const char *dict_name,
-                                             int indirect, mdjvu_error_t *perr, int erosion);
+                                             int insert_magic, mdjvu_error_t *perr, int erosion);
 MDJVU_FUNCTION int mdjvu_save_djvu_page(mdjvu_image_t image, const char *path, const char *dict_name, mdjvu_error_t *perr, int erosion);
 
 MDJVU_FUNCTION int mdjvu_file_save_djvu_dictionary(mdjvu_image_t, mdjvu_file_t,
-                                             int indirect, mdjvu_error_t *, int erosion);
+                                             int insert_magic, mdjvu_error_t *, int erosion);
 MDJVU_FUNCTION int mdjvu_save_djvu_dictionary(mdjvu_image_t image, const char *path, mdjvu_error_t *, int erosion);
 
 MDJVU_FUNCTION void mdjvu_write_dirm_bundled(char **elements, int *sizes, int n, mdjvu_file_t f, mdjvu_error_t *perr);
