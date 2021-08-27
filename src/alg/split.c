@@ -308,44 +308,45 @@ static void add_to_image(mdjvu_image_t image,
 
     if (!max_shape_size)
         max_shape_size = dpi;
-    if (max_shape_size > height)
-        max_shape_size = height;
+    int32 max_shape_height = max_shape_size;
+    if (max_shape_height > height)
+        max_shape_height = height;
 
-    /* n-th line will be unpacked into buf[n % max_shape_size] + 1.
+    /* n-th line will be unpacked into buf[n % max_shape_height] + 1.
      * ( +1 is to make the left margin)
-     * buf[max_shape_size] will always be blank.
+     * buf[max_shape_height] will always be blank.
      *
      * window_base[window_shift - 1]
-     *      points to buf[max_shape_size] + 1 (blank line) - top margin
-     * window_base[window_shift + max_shape_size]
-     *      points to buf[max_shape_size] + 1 (blank line) - bottom margin
+     *      points to buf[max_shape_height] + 1 (blank line) - top margin
+     * window_base[window_shift + max_shape_height]
+     *      points to buf[max_shape_height] + 1 (blank line) - bottom margin
      * window_base[window_shift + i]
-     *      points to buf[(window_shift + i) % max_shape_size] + 1.
+     *      points to buf[(window_shift + i) % max_shape_height] + 1.
      */
 
     /* map has the right margin of 1 */
-    map = mdjvu_create_2d_array(width + 1, max_shape_size);
+    map = mdjvu_create_2d_array(width + 1, max_shape_height);
 
     /* buf has left, right and bottom margins of 1 */
-    buf = mdjvu_create_2d_array(width + 2, max_shape_size + 1);
+    buf = mdjvu_create_2d_array(width + 2, max_shape_height + 1);
     window_buf = (unsigned char **)
-        malloc(2 * (max_shape_size + 2) * sizeof(unsigned char *));
+        malloc(2 * (max_shape_height + 2) * sizeof(unsigned char *));
     window_base = window_buf + 1;
 
     /* Unpack initial portion of the bitmap; bind the window to the buffer */
-    for (i = 0; i < max_shape_size; i++)
+    for (i = 0; i < max_shape_height; i++)
     {
-        window_base[i] = window_base[max_shape_size + i] = buf[i] + 1;
+        window_base[i] = window_base[max_shape_height + i] = buf[i] + 1;
         mdjvu_bitmap_unpack_row(bitmap, buf[i] + 1, i);
     }
 
     /* Setup top and bottom white margins */
     window_base[-1] =
-        window_base[2 * max_shape_size - 1] =
-            buf[max_shape_size] + 1;
+        window_base[2 * max_shape_height - 1] =
+            buf[max_shape_height] + 1;
 
     /* The "window moving" loop.
-     * We're moving a (width x max_shape_size) window through the image.
+     * We're moving a (width x max_shape_height) window through the image.
      */
     while(1)
     {
@@ -356,29 +357,29 @@ static void add_to_image(mdjvu_image_t image,
         unsigned char *top_margin_save =    /* make the top margin */
             window_base[window_shift - 1];  /* (save what was there) */
         unsigned char *bot_margin_save =    /* same with the bottom margin */
-            window_base[window_shift + max_shape_size];
+            window_base[window_shift + max_shape_height];
         int32 old_window_shift;
-        window_base[window_shift - 1] = buf[max_shape_size] + 1; /* clear them */
-        window_base[window_shift + max_shape_size] = buf[max_shape_size] + 1;
+        window_base[window_shift - 1] = buf[max_shape_height] + 1; /* clear them */
+        window_base[window_shift + max_shape_height] = buf[max_shape_height] + 1;
 
         process_row(window_base + window_shift, map,
                     /* index of a row to process: */ 0,
-                    width, max_shape_size, image, 0, y, max_shape_size,
+                    width, max_shape_height, image, 0, y, max_shape_size,
                     blit_shift_x, blit_shift_y, dpi, opt, big);
 
         window_base[window_shift - 1] = top_margin_save; /* restore margins */
-        window_base[window_shift + max_shape_size] = bot_margin_save;
+        window_base[window_shift + max_shape_height] = bot_margin_save;
 
         /* Shift the window */
         y++;
         old_window_shift = window_shift;
-        window_shift = y % max_shape_size;
-        if (y + max_shape_size > height)
+        window_shift = y % max_shape_height;
+        if (y + max_shape_height > height)
             break;
 
         /* Unpack a new row into the bottom window row */
         mdjvu_bitmap_unpack_row(bitmap, buf[old_window_shift] + 1,
-                                        y + max_shape_size - 1);
+                                        y + max_shape_height - 1);
     }
 
     /* Process the last window fully */
@@ -386,7 +387,7 @@ static void add_to_image(mdjvu_image_t image,
     {
         process_row(window_base + window_shift, map,
                     /* index of a row to process: */ i,
-                    width, max_shape_size, image, 0, y, max_shape_size,
+                    width, max_shape_height, image, 0, y, max_shape_size,
                     blit_shift_x, blit_shift_y, dpi, opt, big);
     }
 
