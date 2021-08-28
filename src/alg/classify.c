@@ -291,7 +291,7 @@ static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_o
         n = n->next;
     }
 
-    // return 0 if comparision to all examples in class was "0 (unknown, but probably different)"
+    // return 0 if comparison to all examples in class was "0 (unknown, but probably different)"
     return positive_matches ? 1 : 0;
 }
 
@@ -331,7 +331,7 @@ static void classify(Classification *cl, PatternList * all_patterns, mdjvu_match
     int classifier_level = mdjvu_get_classifier(mdjvu_get_classify_options(options));
 
 
-    while (c->next_class != NULL) {
+    while (c && c->next_class != NULL) {
 
 
         Class * nc = c->next_class;
@@ -387,7 +387,7 @@ static void classify(Classification *cl, PatternList * all_patterns, mdjvu_match
 
         } while (classifier_level > 1 && changed);
 
-        c = c->next_class;
+        c = c->next_class; // next may be NULL if two last classes were merged
     }
 
 }
