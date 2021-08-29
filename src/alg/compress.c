@@ -90,7 +90,7 @@ static void find_substitutions(mdjvu_image_t image,
     {
         /* Average */
         mdjvu_bitmap_t *sources = (mdjvu_bitmap_t *) calloc(n, sizeof(mdjvu_bitmap_t));
-        for (i = 1; i < max_tag; i++)
+        for (i = 1; i <= max_tag; i++)
         {
             int j, sources_found = 0;
             mdjvu_bitmap_t rep;

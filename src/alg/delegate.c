@@ -55,7 +55,7 @@ MDJVU_IMPLEMENT mdjvu_image_t mdjvu_multipage_choose_average_representatives
     cx = (int32 *) malloc(total_count * sizeof(int32));
     cy = (int32 *) malloc(total_count * sizeof(int32));
 
-    for (tag = 1; tag < max_tag; tag++)
+    for (tag = 1; tag <= max_tag; tag++)
     {
         int32 sources_found = 0, total_bitmaps_passed = 0;
         mdjvu_bitmap_t rep;
