@@ -200,6 +200,20 @@ typedef struct CachedResults
     size_t size;
 } CachedResults;
 
+/* organize chache for n elements
+   For each i-th element allocated a chunk of memory big enough to store
+   its comparisons results with next elements.
+   So n'th don't have cache, n-1 have cache for 1 el comparison etc.
+   We need 2 bits to store comparison result (-1 - not match, 0 - don't know, 1 - match).
+   Results are stored as value+1. So not match will be 0 (0b00) and match is 2 (0b10).
+
+   For n = 100 the 95-th element would need to cache 4 comparisons (vs 96, 97, 98, 99).
+   It takes 1 byte to store (cache is byte aligned)
+   For i-th - (n-i-1) comparisons.
+   It takes (n-i-1)*2 bits or (n-i-1)*2/8 bytes == (n-i-1)/4 == ((n-i-1) >> 2) + 1 == ((n-i-1) + (1 << 2)) >> 2
+   == (n-i+3) >> 2 bytes
+*/
+
 CachedResults new_cache(size_t size) {
 	CachedResults c;
         c.size = size;
@@ -219,7 +233,7 @@ CachedResults new_cache(size_t size) {
             exit(-1);
         }
 
-        memset(buf, 0xFF, mem_req);
+        memset(buf, 0xFF, mem_req); // will set values to 0b11 - impossible value
 
         for (int i = 0; i < size; i++) {
                 c.cache[i] = buf;
@@ -229,20 +243,39 @@ CachedResults new_cache(size_t size) {
 	return c;
 }
 
-unsigned char masks[4] = {0xFC, 0xF3, 0xCF, 0x3F};
+unsigned char masks[4] = {0xFC, // 0b11111100
+                          0xF3, // 0b11110011
+                          0xCF, // 0b11001111
+                          0x3F};// 0b00111111
 
 static void set_cache(CachedResults* c, int a, int b, int val) {
+
     val++;
+
+    // comparison is always starts with smaller index element. i.e. 2 with 5, not 5 with 2
     if (a > b) { int t = a; a = b; b = t; }
-    unsigned char* v = c->cache[a] + ((c->size - b - 1) >> 2);
-    const int shift = b & 0x3;
+    // c->cache[i] is a pointer to a i-th element cache which contains n-i-1 comparisons.
+    // we need to find a byte that contains 2 bits result for comparison of i with j, where i < j.
+    // If j=i+1, it will be first ([0]) byte. for j=i+5 - second ([1]) byte etc.
+    // So for j=i+k, k > 1 it'll be k*2/8 == k >> 2 byte.
+    // Unfortunately we're not using first 2 bits of very first byte with such approach, so we add -1 to k address
+    // Thus byte for j-th el. will be (k -1) >> 2 or (j-i -1) >> 2.
+    //
+    // Now we know the byte address. We need to store 4 values in it for some 4 sequentially elements.
+    // Let say these elements are k, k+1, k+2, k+3. They all will have 4 different 2-bit values at their end of
+    // their indices. Thus we can use (k & 0b000000011) pair of bits in byte. Or (k & 0x03).
+    // k & 0x03 will return 0, 1, 2 or 3. We should shift our 2 bit value by (k & 0x03)*2 to the left.
+    // The mask[shift] is used to reset bits that require overwriting.
+
+    unsigned char* v = c->cache[a] + ((b - a - 1) >> 2);
+    const int shift = b & 0x3; // 0b11
     *v = (*v & masks[shift]) | ( val << (shift*2) );
 }
 
 static void set_cache_by_line(CachedResults* c, unsigned char* line, int a, int b, int val) {
     val++;
     if (a > b) {int t = a; a = b; b = t;}
-    unsigned char* v = line + ((c->size - b - 1) >> 2);
+    unsigned char* v = line + ((b - a - 1) >> 2);
     const int shift = b & 0x3;
     *v = (*v & masks[shift]) | ( val << (shift*2) );
 }
@@ -250,7 +283,7 @@ static void set_cache_by_line(CachedResults* c, unsigned char* line, int a, int 
 static char get_cache_and_line(const CachedResults* c, int a, int b, unsigned char** line) {
     if (a > b) {int t = a; a = b; b = t;}
     *line = c->cache[a];
-    char val = (*line)[(c->size - b - 1) >> 2];
+    char val = (*line)[(b - a - 1) >> 2];
     val >>= (b & 0x3)*2;
     return (val & 0x3) - 1;
 }
@@ -283,7 +316,7 @@ static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_o
             r = mdjvu_match_patterns(o->ptr, n->ptr, n->dpi, options);
         }
 
-        if (r == -1) { // definetely wrong class
+        if (r == -1) { // definitely wrong class
             return 0;
         }
 
@@ -559,7 +592,7 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_patterns
 
         int32 i;
         for (i = 0; i < n; i++) {
-            if (*p) {
+            if (*p) { // Some patterns might be NULL'ed in the pointers list
                 head->p = *p;
                 head->id = pl_num++;
                 head->pos = patterns_gathered;
