@@ -440,7 +440,7 @@ MDJVU_IMPLEMENT int32 mdjvu_classify_patterns
     for (i = 0; i < n; i++) {
         if (b[i]) {
             head->p = b[i];
-            head->pos = i;
+            head->id = head->pos = i;
             head->dpi = dpi;
             head->next = head+1;
             head->prev = tail;
