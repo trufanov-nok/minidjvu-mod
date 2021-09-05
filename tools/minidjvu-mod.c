@@ -59,22 +59,6 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("Options:\n"));
     printf(_("    -A, --Averaging:               compute \"average\" representatives\n"));
     printf(_("    -a <n>, --aggression <n>:      set aggression level (default 100)\n"));
-    printf(_("    -C <n>, --Classifier <n>:      set symbols classifier mode (default 3)\n"));
-    printf(_("                                   1 - behaves similar to original one.\n"));
-    printf(_("                                   2 - makes additional efforts to achieve\n"));
-    printf(_("                                       better compression. This requires\n"));
-    printf(_("                                       more CPU time and much more RAM\n"));
-    printf(_("                                       as cache is allocated per thread.\n"));
-    printf(_("                                   3 - similar to 2 but takes even more\n"));
-    printf(_("                                       CPU time to achieve maximum level\n"));
-    printf(_("                                       of document compression (same RAM).\n"));
-    printf(_("                                   BE VERY CAREFUL with modes 2 and 3 as\n"));
-    printf(_("                                       they can slow down your machine or\n"));
-    printf(_("                                       overflow available RAM size. \n"));
-    printf(_("                                       You may decrease number of threads\n"));
-    printf(_("                                       to save some RAM at the cost of time.\n"));
-    printf(_("                                       Or decrease pages per dict at a cost\n"));
-    printf(_("                                       of filesize (not recommended).\n"));
     printf(_("    -c, --clean:                   remove small black pieces\n"));
     printf(_("    -d <n>, --dpi <n>:             set resolution in dots per inch\n"));
     printf(_("    -e, --erosion:                 sacrifice quality to gain in size\n"));
@@ -163,23 +147,12 @@ static mdjvu_matcher_options_t get_matcher_options(struct DjbzOptions* djbz)
     return m_options;
 }
 
-static mdjvu_classify_options_t get_classify_options(struct DjbzOptions* djbz)
-{
-    mdjvu_classify_options_t m_options = NULL;
-    m_options = mdjvu_classify_options_create();
-    mdjvu_set_classifier(m_options, djbz? djbz->classifier : options.default_djbz_options->classifier);
-    return m_options;
-}
-
 static void sort_and_save_image(mdjvu_image_t image, const char *path, const struct InputFile* in)
 {
     mdjvu_error_t error;
 
     mdjvu_compression_options_t compr_opts = mdjvu_compression_options_create();
     mdjvu_matcher_options_t matcher_opts = get_matcher_options(NULL);
-    if (matcher_opts) {
-        mdjvu_set_classify_options(matcher_opts, get_classify_options(NULL));
-    }
     mdjvu_set_matcher_options(compr_opts, matcher_opts);
 
     mdjvu_set_verbose(compr_opts, options.verbose);
@@ -470,7 +443,6 @@ static void multipage_encode()
 
         mdjvu_compression_options_t compr_opts = mdjvu_compression_options_create();
         mdjvu_matcher_options_t m_opt = get_matcher_options(djbz);
-        mdjvu_set_classify_options(m_opt, get_classify_options(djbz));
         mdjvu_set_matcher_options(compr_opts, m_opt);
 
         mdjvu_set_verbose(compr_opts, options.verbose);
@@ -752,12 +724,6 @@ static void process_options(int argc, char **argv)
             if (i == argc) show_usage_and_exit();
             options.default_djbz_options->aggression = atoi(argv[i]);
             options.match = 1;
-        }
-        else if (same_option(option, "Classifier"))
-        {
-            i++;
-            if (i == argc) show_usage_and_exit();
-            options.default_djbz_options->classifier = atoi(argv[i]);
         }
         else if (same_option(option, "Xtension"))
         {

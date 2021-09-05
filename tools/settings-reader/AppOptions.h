@@ -66,7 +66,6 @@ struct DjbzOptions
     char* dict_suffix;
     int averaging;
     int aggression;
-    int classifier;
     int no_prototypes;
     int erosion;
     struct FileList file_list_ref;

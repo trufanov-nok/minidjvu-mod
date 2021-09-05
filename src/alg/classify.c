@@ -27,30 +27,6 @@
 #endif
 
 
-typedef struct MinidjvuClassifyOptions
-{
-    int classifier;
-} MinidjvuClassifyOptions;
-
-MDJVU_IMPLEMENT mdjvu_classify_options_t mdjvu_classify_options_create()
-{
-    mdjvu_classify_options_t opt = (mdjvu_classify_options_t)
-        malloc(sizeof(struct MinidjvuClassifyOptions));
-    mdjvu_init();
-    opt->classifier = 1;
-    return opt;
-}
-
-MDJVU_IMPLEMENT void mdjvu_classify_options_destroy(mdjvu_classify_options_t opt)
-{
-    free(opt);
-}
-
-MDJVU_IMPLEMENT int mdjvu_get_classifier(mdjvu_classify_options_t opt)
-    {return opt->classifier;}
-MDJVU_IMPLEMENT void mdjvu_set_classifier(mdjvu_classify_options_t opt, int v)
-    {opt->classifier = v;}
-
 /* Classes are single-linked lists with an additional pointer to the last node.
  * This is an class item.
  */
@@ -193,111 +169,8 @@ static void delete_all_classes(Classification *cl)
     }
 }
 
-
-typedef struct CachedResults
-{
-    unsigned char** cache;
-    size_t size;
-} CachedResults;
-
-/* organize chache for n elements
-   For each i-th element allocated a chunk of memory big enough to store
-   its comparisons results with next elements.
-   So n'th don't have cache, n-1 have cache for 1 el comparison etc.
-   We need 2 bits to store comparison result (-1 - not match, 0 - don't know, 1 - match).
-   Results are stored as value+1. So not match will be 0 (0b00) and match is 2 (0b10).
-
-   For n = 100 the 95-th element would need to cache 4 comparisons (vs 96, 97, 98, 99).
-   It takes 1 byte to store (cache is byte aligned)
-   For i-th - (n-i-1) comparisons.
-   It takes (n-i-1)*2 bits or (n-i-1)*2/8 bytes == (n-i-1)/4 == ((n-i-1) >> 2) + 1 == ((n-i-1) + (1 << 2)) >> 2
-   == (n-i+3) >> 2 bytes
-*/
-
-CachedResults new_cache(size_t size) {
-	CachedResults c;
-        c.size = size;
-        c.cache = MALLOCV(unsigned char*, size);
-        double mem_req = 0;
-        for (int i = 0; i < size; i++) {
-                mem_req += (size - i + 3) >> 2;
-        }
-
-        fprintf(stdout, "Allocating cache for %lu elements: %0.2f MiB .... ", size, mem_req / 1024 / 1024);
-
-        unsigned char* buf = MALLOCV(unsigned char, mem_req);
-        if (buf) {
-            fprintf(stdout, "done\n", size);
-        } else {
-            fprintf(stdout, "ERROR!\n");
-            exit(-1);
-        }
-
-        memset(buf, 0xFF, mem_req); // will set values to 0b11 - impossible value
-
-        for (int i = 0; i < size; i++) {
-                c.cache[i] = buf;
-                buf += (size - i + 3) >> 2;
-        }
-
-	return c;
-}
-
-unsigned char masks[4] = {0xFC, // 0b11111100
-                          0xF3, // 0b11110011
-                          0xCF, // 0b11001111
-                          0x3F};// 0b00111111
-
-static void set_cache(CachedResults* c, int a, int b, int val) {
-
-    val++;
-
-    // comparison is always starts with smaller index element. i.e. 2 with 5, not 5 with 2
-    if (a > b) { int t = a; a = b; b = t; }
-    // c->cache[i] is a pointer to a i-th element cache which contains n-i-1 comparisons.
-    // we need to find a byte that contains 2 bits result for comparison of i with j, where i < j.
-    // If j=i+1, it will be first ([0]) byte. for j=i+5 - second ([1]) byte etc.
-    // So for j=i+k, k > 1 it'll be k*2/8 == k >> 2 byte.
-    // Unfortunately we're not using first 2 bits of very first byte with such approach, so we add -1 to k address
-    // Thus byte for j-th el. will be (k -1) >> 2 or (j-i -1) >> 2.
-    //
-    // Now we know the byte address. We need to store 4 values in it for some 4 sequentially elements.
-    // Let say these elements are k, k+1, k+2, k+3. They all will have 4 different 2-bit values at their end of
-    // their indices. Thus we can use (k & 0b000000011) pair of bits in byte. Or (k & 0x03).
-    // k & 0x03 will return 0, 1, 2 or 3. We should shift our 2 bit value by (k & 0x03)*2 to the left.
-    // The mask[shift] is used to reset bits that require overwriting.
-
-    unsigned char* v = c->cache[a] + ((b - a - 1) >> 2);
-    const int shift = b & 0x3; // 0b11
-    *v = (*v & masks[shift]) | ( val << (shift*2) );
-}
-
-static void set_cache_by_line(CachedResults* c, unsigned char* line, int a, int b, int val) {
-    val++;
-    if (a > b) {int t = a; a = b; b = t;}
-    unsigned char* v = line + ((b - a - 1) >> 2);
-    const int shift = b & 0x3;
-    *v = (*v & masks[shift]) | ( val << (shift*2) );
-}
-
-static char get_cache_and_line(const CachedResults* c, int a, int b, unsigned char** line) {
-    if (a > b) {int t = a; a = b; b = t;}
-    *line = c->cache[a];
-    char val = (*line)[(b - a - 1) >> 2];
-    val >>= (b & 0x3)*2;
-    return (val & 0x3) - 1;
-}
-
-
-static void delete_cache(CachedResults* c) {
-        FREEV(c->cache[0]);
-	FREEV(c->cache);
-	c->cache = NULL;
-	c->size = 0;
-}
-
 /* Compares p with nodes from c until a meaningful result. */
-static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_options_t options, CachedResults* cache)
+static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_options_t options)
 {
     int r = 0;
     ClassNode *n = start_from;
@@ -305,22 +178,12 @@ static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_o
 
     while(n)
     {
-        if (cache) {
-            unsigned char* line;
-            r = get_cache_and_line(cache, o->id, n->id, &line);
-            if (r == 2) {
-                r = mdjvu_match_patterns(o->ptr, n->ptr, n->dpi, options);
-                set_cache_by_line(cache, line, o->id, n->id, r);
-            }
-        } else {
-            r = mdjvu_match_patterns(o->ptr, n->ptr, n->dpi, options);
-        }
-
+        r = mdjvu_match_patterns(o->ptr, n->ptr, n->dpi, options);
         if (r == -1) { // definitely wrong class
-            return 0;
+            return -1;
         }
 
-        positive_matches += (r==1);
+        positive_matches += (r == 1);
         n = n->next;
     }
 
@@ -328,9 +191,12 @@ static int compare_to_class(ClassNode* o, ClassNode* start_from, mdjvu_matcher_o
     return positive_matches ? 1 : 0;
 }
 
-static void classify(Classification *cl, PatternList * all_patterns, mdjvu_matcher_options_t options, CachedResults* cache)
+static void classify(Classification *cl, PatternList * all_patterns, mdjvu_matcher_options_t options)
 {
     if (!all_patterns->p) return;
+
+    // phase 1. Just compare all patterns to the following like in bubble sort
+    // and create classes for them
 
     while (all_patterns) {
         mdjvu_pattern_t cur = all_patterns->p;
@@ -340,9 +206,6 @@ static void classify(Classification *cl, PatternList * all_patterns, mdjvu_match
         PatternList * maybe_seed = all_patterns->next;
         while (maybe_seed) {
             int res = mdjvu_match_patterns(cur, maybe_seed->p, all_patterns->dpi, options);
-            if (cache) {
-                set_cache(cache, all_patterns->id, maybe_seed->id, res);
-            }
 
             if (res == 1) {
                 if (maybe_seed->prev) {
@@ -361,56 +224,57 @@ static void classify(Classification *cl, PatternList * all_patterns, mdjvu_match
     }
 
     Class * c = cl->first_class;
-    int classifier_level = mdjvu_get_classifier(mdjvu_get_classify_options(options));
 
+    // phase 2. Further merging of classes
 
     while (c && c->next_class != NULL) {
-
+        // we are going to compare class c to all next classes
 
         Class * nc = c->next_class;
         while (nc != NULL) {
+            // set pattern to start comparison in class C to its first pattern
+            // for all next classes
             nc->compare_start_trick = c->first;
             nc = nc->next_class;
         }
 
-        int changed;
+        int changed; // any merges during this iteration?
 
+        Class * recheck_to_last_merged = NULL;
         do {
             changed = 0;
             Class * next_c = c->next_class;
-            Class * recheck_to_last_merged = NULL;
             Class * next_recheck_to_last_merged = NULL;
             while (next_c != recheck_to_last_merged) {
-                Class * next_to_next_c = next_c->next_class; /* That's because c may be deleted in merging */
-                ClassNode* n = c->count >= next_c->count ? next_c->compare_start_trick : next_c->first;
-                ClassNode* n2 = c->count >= next_c->count ? next_c->first : next_c->compare_start_trick;
-                char need_merge = 0;
-                while (n) {
-                    if (compare_to_class(n, n2, options, cache)) {
-                        need_merge = 1;
-                        break;
-                    }
-                    n = n->next;
-                }
 
-                if (classifier_level > 2 && !need_merge) {
-                    n = c->count < next_c->count ? next_c->compare_start_trick : next_c->first;
-                    n2 = c->count < next_c->count ? next_c->first : next_c->compare_start_trick;
+                Class * next_to_next_c = next_c->next_class; /* Keep value as next_c may be deleted by merging */
+
+                if (next_c->compare_start_trick) {
+                    // it's faster to compare small class with bigger one
+                    ClassNode* n = c->count >= next_c->count ? next_c->compare_start_trick : next_c->first;
+                    ClassNode* n2 = c->count >= next_c->count ? next_c->first : next_c->compare_start_trick;
+
+                    int res = 0; // -1 - definitely not merge; 0 - not sure; 1 - merge
+                    int to_merge = 0;
                     while (n) {
-                        if (compare_to_class(n, n2, options, cache)) {
-                            need_merge = 1;
+                        res = compare_to_class(n, n2, options);
+                        if (res > 0) {
+                            to_merge = 1;
+                        } else if (res < 0) {
                             break;
                         }
+
                         n = n->next;
                     }
-                }
 
-                if (need_merge) {
-                    next_recheck_to_last_merged = next_to_next_c;
-                    merge(cl, c, next_c);
-                    changed = 1;
-                } else {
-                    next_c->compare_start_trick = c->last;
+                    if (to_merge && res >= 0) {
+                        next_recheck_to_last_merged = next_to_next_c;
+                        merge(cl, c, next_c);
+                        changed = 1;
+                    } else {
+                        // set NULL if comparison returned -1 and we never want to compare with this class anymore
+                        next_c->compare_start_trick = (res == -1) ? NULL : c->last;
+                    }
                 }
 
                 next_c = next_to_next_c;
@@ -418,7 +282,7 @@ static void classify(Classification *cl, PatternList * all_patterns, mdjvu_match
 
             recheck_to_last_merged = next_recheck_to_last_merged;
 
-        } while (classifier_level > 1 && changed);
+        } while (changed);
 
         c = c->next_class; // next may be NULL if two last classes were merged
     }
@@ -488,14 +352,7 @@ MDJVU_IMPLEMENT int32 mdjvu_classify_patterns
         tail->next = NULL;
     }
 
-    int classifier_level = mdjvu_get_classifier(mdjvu_get_classify_options(options));
-    if (classifier_level == 1) {
-        classify(&cl, pl, options, NULL);
-    } else {
-        CachedResults cache = new_cache(n);
-        classify(&cl, pl, options, &cache);
-        delete_cache(&cache);
-    }
+    classify(&cl, pl, options);
     MDJVU_FREEV(pl);
 
     return get_tags_from_classification(r, n, &cl);
@@ -620,14 +477,7 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_patterns
         return 0;
     }
 
-    int classifier_level = mdjvu_get_classifier(mdjvu_get_classify_options(options));
-    if (classifier_level == 1) {
-        classify(&cl, pl, options, NULL);
-    } else {
-        CachedResults cache = new_cache(pl_num);
-        classify(&cl, pl, options, &cache);
-        delete_cache(&cache);
-    }
+    classify(&cl, pl, options);
 
     MDJVU_FREEV(pl);
 

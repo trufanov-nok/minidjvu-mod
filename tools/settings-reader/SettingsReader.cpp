@@ -7,8 +7,6 @@
 #include <iostream>
 #include <memory>
 
-inline bool is_valid_classifier(int id) { return id > 0 && id < 4; }
-
 SettingsReader::SettingsReader(const char* settings_file, AppOptions *appOptions):
     m_bs(nullptr), m_appOptions(appOptions)
 {
@@ -128,7 +126,6 @@ SettingsReader::readAllOptions()
  (default-djbz       # default djbz settings
    averaging     0   # default averaging (off)
    aggression    100 # default aggression level (100)
-   classifier    3   # default classifier (max compression)
    erosion       0   # default erosion (disabled)
    no-prototypes 0   # default prototypes usage (on)
    xtension      djbz # default djbz id extension ("djbz")
@@ -488,7 +485,6 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
                    # the id will be "0001.iff"
    averaging  0    # overrides default averaging (0)
    aggression 100  # overrides default aggression (100)
-   classifier 3    # overrides default classifier used to encode this block
    no-prototypes 0 # overrides default no-prototypes
    erosion       0 # overrides erosion of glyphs in djbz dictionary
                    # (which is jb2 image by nature)
@@ -558,8 +554,6 @@ SettingsReader::readDjbzOptions(struct DjbzOptions *djbz, bool is_defaults)
             if (!readValInt("averaging", djbz->averaging)) return false;
         } else if (token == "aggression") {
             if (!readValInt("aggression", djbz->aggression, 0, 1000)) return false;
-        } else if (token == "classifier") {
-            if (!readValInt("classifier", djbz->classifier, 1, 3)) return false;
         } else if (token == "no-prototypes") {
             if (!readValInt("no-prototypes", djbz->no_prototypes)) return false;
         } else if (token == "xtension") {

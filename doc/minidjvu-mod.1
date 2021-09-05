@@ -71,8 +71,7 @@ document under the name provided in the command line.
 
 There are several options referring to the multipage encoding process, namely
 .B --pages-per-dict,
-.B --indirect,
-.B --Classifier
+.B --indirect
 and
 .B --report.
 
@@ -101,20 +100,6 @@ The default, however, will always be 100.
 This option turns on
 .BR --match
 automatically.
-
-.TP
-.BI "-C " "n"
-.TP
-.BI "--Classifier " "n"
-Set symbols classifier mode (default is 3). 1 - classifier behave similar to the original
-implementation in minidjvu encoder. 2 - classifier make additional efforts to achieve
-better compression. This require more CPU time and much more RAM for cache that's
-allocated per thread. 3 - similar to 2 but takes even more CPU time to achieve maximum
-level of document compression (the RAM usage is same as in 2).
-
-BE VERY CAREFUL with modes 2 and 3 as they can slow down your machine or overflow
-available RAM size. You may decrease number of threads to save some RAM
-at the cost of time. Or decrease pages per dict at a cost of filesize (not recommended).
 
 .TP
 .B "-c"
@@ -332,7 +317,6 @@ Contains application options (pretty the same as may be passed via the command l
  (default-djbz        # default djbz settings
    averaging     0    # default averaging (off)
    aggression    100  # default aggression level (100)
-   classifier    3    # default classifier (max compression)
    erosion       0    # default erosion (disabled)
    no-prototypes 0    # default prototypes usage (on)
    xtension      djbz # default djbz id extension ("djbz")

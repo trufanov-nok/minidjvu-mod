@@ -6,13 +6,6 @@
 #ifndef MDJVU_CLASSIFY_H
 #define MDJVU_CLASSIFY_H
 
-typedef struct MinidjvuClassifyOptions *mdjvu_classify_options_t;
-
-MDJVU_FUNCTION mdjvu_classify_options_t mdjvu_classify_options_create();
-MDJVU_FUNCTION void mdjvu_classify_options_destroy(mdjvu_classify_options_t opt);
-MDJVU_FUNCTION int mdjvu_get_classifier(mdjvu_classify_options_t opt);
-MDJVU_FUNCTION void mdjvu_set_classifier(mdjvu_classify_options_t opt, int v);
-
 /* Classifies a set of patterns.
  * result - array of tags ranging from 1 to return value,
  *    and 0 for those cells which were NULL (yes, NULLs are permitted).

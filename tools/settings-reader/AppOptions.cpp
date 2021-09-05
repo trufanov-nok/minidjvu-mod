@@ -331,7 +331,6 @@ struct DjbzOptions* djbz_setting_create(struct DjbzOptions* defaults)
     djbz->dict_suffix = NULL;
     djbz->averaging = defaults ? defaults->averaging : 0;
     djbz->aggression = defaults ? defaults->aggression : 100;
-    djbz->classifier = defaults ? defaults->classifier : 3;
     djbz->no_prototypes = defaults ? defaults->no_prototypes : 0;
     djbz->erosion = defaults ? defaults->erosion : 0;
     if (defaults) {

@@ -7,12 +7,9 @@
 
 
 typedef struct MinidjvuMatcherOptions *mdjvu_matcher_options_t;
-typedef struct MinidjvuClassifyOptions *mdjvu_classify_options_t;
 
 MDJVU_FUNCTION mdjvu_matcher_options_t mdjvu_matcher_options_create(void);
 MDJVU_FUNCTION void mdjvu_set_aggression(mdjvu_matcher_options_t, int level);
-MDJVU_FUNCTION void mdjvu_set_classify_options(mdjvu_matcher_options_t, mdjvu_classify_options_t);
-MDJVU_FUNCTION mdjvu_classify_options_t mdjvu_get_classify_options(mdjvu_matcher_options_t opt);
 
 /* "matcher methods" (bitmask, not enum) */
 #define MDJVU_MATCHER_DEFAULT 0
