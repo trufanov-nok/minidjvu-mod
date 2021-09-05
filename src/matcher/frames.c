@@ -71,7 +71,7 @@
 /* This determines the gray level of the border (ratio of black).
  * Setting it to 1 will effectively eliminate grayshading.
  */
-#define BORDER_FALLOFF .7 /* this is the main constant in all the matcher... */
+#define BORDER_FALLOFF 0.95 /* this is the main constant in all the matcher... */
 
 typedef unsigned char byte;
 

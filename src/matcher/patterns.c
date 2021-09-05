@@ -32,7 +32,6 @@ typedef struct
     double shiftdiff3_threshold;
     int aggression;
     int method;
-    mdjvu_classify_options_t classify_options;
 } Options;
 
 /* These are hand-tweaked parameters of this classifier. */
@@ -44,7 +43,7 @@ static const double shiftdiff2_veto_threshold      = 1500;
 static const double shiftdiff3_veto_threshold      = 2000;
 
 static const double size_difference_threshold = 10;
-static const double mass_difference_threshold = 15;
+static const double mass_difference_threshold = 10;
 
 static const double shiftdiff1_falloff        = .9;
 static const double shiftdiff2_falloff        = 1;
@@ -69,18 +68,18 @@ static void interpolate(Options *opt, const double *v1, const double *v2,
 
 MDJVU_IMPLEMENT void mdjvu_set_aggression(mdjvu_matcher_options_t opt, int level)
 {
-    const double set200[5] = {9, 1.2, 70, 90, 180};
-    const double set120[5] = {5,  .2, 50, 70, 150};
-    const double   set0[5] = {0,   0,  0,  0,   0};
+    const double set200[5] = {30,     3, 200,  200, 15};
+    const double set100[5] = {10,   0.9, 100,  100,  5};
+    const double   set0[5] = {0,     0,   0,    0,   0};
 
     if (level < 0) level = 0;
 
     ((Options *) opt)->aggression = level;
 
-    if (level > 120)
-        interpolate((Options *) opt, set120, set200, 120, 200, level);
+    if (level > 100)
+        interpolate((Options *) opt, set100, set200, 100, 200, level);
     else
-        interpolate((Options *) opt, set0,   set120, 0,   120, level);
+        interpolate((Options *) opt, set0,   set100, 0,   100, level);
 }
 
 /* ========================================================================== */
@@ -92,22 +91,7 @@ MDJVU_IMPLEMENT mdjvu_matcher_options_t mdjvu_matcher_options_create(void)
     mdjvu_init();
     mdjvu_set_aggression(options, 100);
     ((Options *) options)->method = 0;
-    ((Options *) options)->classify_options = NULL;
     return options;
-}
-
-MDJVU_IMPLEMENT void mdjvu_set_classify_options(mdjvu_matcher_options_t opt, mdjvu_classify_options_t v)
-{
-    Options * options = (Options *) opt;
-    if (options->classify_options)
-        mdjvu_classify_options_destroy(options->classify_options);
-    options->classify_options = v;
-}
-
-MDJVU_IMPLEMENT mdjvu_classify_options_t mdjvu_get_classify_options(mdjvu_matcher_options_t opt)
-{
-    Options * options = (Options *) opt;
-    return options->classify_options;
 }
 
 MDJVU_IMPLEMENT void mdjvu_use_matcher_method(mdjvu_matcher_options_t opt, int method)
@@ -118,8 +102,6 @@ MDJVU_IMPLEMENT void mdjvu_use_matcher_method(mdjvu_matcher_options_t opt, int m
 MDJVU_IMPLEMENT void mdjvu_matcher_options_destroy(mdjvu_matcher_options_t opt)
 {
     Options * options = (Options *) opt;
-    if (options->classify_options)
-        mdjvu_classify_options_destroy(options->classify_options);
     FREE1(options);
 }
 
@@ -750,7 +732,7 @@ inline size_t pith2_row_subset_op(size_t val_a, size_t val_b, char inverted) {
 }
 
 static int32 pith2_row_subset(byte *A, int32 pos_a, byte *B, int32 pos_b, int32 w)
-{   
+{
     A += pos_a / 8; pos_a %= 8;
     B += pos_b / 8; pos_b %= 8;
 
