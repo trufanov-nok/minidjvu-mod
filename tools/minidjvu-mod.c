@@ -620,7 +620,9 @@ static void multipage_encode()
         mdjvu_save_djvu_dir(elements, sizes, el_size, options.output_file, &error);
     }
 
-    print_progress(100.0);
+    if (options.report) {
+        print_progress(100.0);
+    }
     MDJVU_FREEV(files);
     MDJVU_FREEV(elements);
     MDJVU_FREEV(sizes);

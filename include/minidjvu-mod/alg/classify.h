@@ -15,7 +15,7 @@
 
 MDJVU_FUNCTION int32 mdjvu_classify_patterns
     (mdjvu_pattern_t *, int32 *result, int32 n, int32 dpi,
-     mdjvu_matcher_options_t);
+     mdjvu_matcher_options_t, int verbose);
 
 #ifndef NO_MINIDJVU /* that's for DjVuLibre */
 
@@ -23,7 +23,7 @@ MDJVU_FUNCTION int32 mdjvu_classify_patterns
  * If centers_needed, also extract bitmap centers from the patterns.
  */
 MDJVU_FUNCTION int32 mdjvu_classify_bitmaps
-    (mdjvu_image_t, int32 *result, mdjvu_matcher_options_t, int centers_needed);
+    (mdjvu_image_t, int32 *result, mdjvu_matcher_options_t, int centers_needed, int verbose);
 
 
 
@@ -43,12 +43,12 @@ MDJVU_FUNCTION int32 mdjvu_classify_bitmaps
 MDJVU_FUNCTION int32 mdjvu_multipage_classify_patterns
 	(int32 npages, int32 total_npatterns, const int32 *npatterns, mdjvu_pattern_t **,
 	 int32 *result, const int32 *dpi, mdjvu_matcher_options_t,
-     void (*report)(void *, int), void *param);
+     void (*report)(void *, int), int verbose);
 
 MDJVU_FUNCTION int32 mdjvu_multipage_classify_bitmaps
     (int32 npages, int32 total_npatterns, mdjvu_image_t *,
      int32 *result, mdjvu_matcher_options_t,
-     void (*report)(void *, int), void *param, int centers_needed);
+     void (*report)(void *, int), int centers_needed, int verbose);
 
 
 /* Decide what bitmaps will be put into the dictionary (by tag).

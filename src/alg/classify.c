@@ -318,7 +318,7 @@ static void init_classification(Classification *c)
 
 MDJVU_IMPLEMENT int32 mdjvu_classify_patterns
     (mdjvu_pattern_t *b, int32 *r, int32 n, int32 dpi,
-     mdjvu_matcher_options_t options)
+     mdjvu_matcher_options_t options, int verbose)
 {
     if (!n) return 0;
 
@@ -346,7 +346,9 @@ MDJVU_IMPLEMENT int32 mdjvu_classify_patterns
         }
     }
 
-    fprintf(stdout, "Classifier allocated memory: %0.2f MiB\n", allocated_mem_stat / 1024 / 1024);
+    if (verbose) {
+        fprintf(stdout, "Classifier allocated memory: %0.2f MiB\n", allocated_mem_stat / 1024 / 1024);
+    }
 
     if (tail) {
         tail->next = NULL;
@@ -370,14 +372,16 @@ static void get_cheap_center(mdjvu_bitmap_t bitmap, int32 *cx, int32 *cy)
 
 MDJVU_IMPLEMENT int32 mdjvu_classify_bitmaps
     (mdjvu_image_t image, int32 *result, mdjvu_matcher_options_t options,
-        int centers_needed)
+        int centers_needed, int verbose)
 {
     int32 i, n = mdjvu_image_get_bitmap_count(image);
     int32 dpi = mdjvu_image_get_resolution(image);
     mdjvu_pattern_t *patterns = MALLOCV(mdjvu_pattern_t, n);
     int32 max_tag;
 
-    fprintf(stdout,"Size of JB2 image in memory: %0.2f MiB\n", (double) mdjvu_image_get_bitmap_count(image) / 1024 / 1024);
+    if (verbose) {
+        fprintf(stdout,"Size of JB2 image in memory: %0.2f MiB\n", (double) mdjvu_image_get_bitmap_count(image) / 1024 / 1024);
+    }
 
     for (i = 0; i < n; i++)
     {
@@ -388,7 +392,7 @@ MDJVU_IMPLEMENT int32 mdjvu_classify_bitmaps
             patterns[i] = mdjvu_pattern_create(options, bitmap);
     }
 
-    max_tag = mdjvu_classify_patterns(patterns, result, n, dpi, options);
+    max_tag = mdjvu_classify_patterns(patterns, result, n, dpi, options, verbose);
 
     if (centers_needed)
     {
@@ -420,7 +424,7 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_patterns
 	(int32 npages, int32 total_patterns_count, const int32 *npatterns,
      mdjvu_pattern_t **patterns, int32 *result,
 	 const int32 *dpi, mdjvu_matcher_options_t options,
-     void (*report)(void *, int), void *param)
+     void (*report)(void *, int), int verbose)
 {
     /* a kluge for NULL patterns */
     /* FIXME: do it decently */
@@ -463,10 +467,11 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_patterns
             all_patterns[patterns_gathered++] = *p;
             p++;
         }
-        //        report(param, page);
     }
 
-    fprintf(stdout, "Classifier allocated memory: %0.2f MiB\n", allocated_mem_stat / 1024 / 1024);
+    if (verbose) {
+        fprintf(stdout, "Classifier allocated memory: %0.2f MiB\n", allocated_mem_stat / 1024 / 1024);
+    }
 
     if (tail) {
         tail->next = NULL;
@@ -493,7 +498,7 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_patterns
 MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_bitmaps
     (int32 npages, int32 total_patterns_count, mdjvu_image_t *pages,
      int32 *result, mdjvu_matcher_options_t options,
-     void (*report)(void *, int), void *param, int centers_needed)
+     void (*report)(void *, int), int centers_needed, int verbose)
 {
     int32 max_tag, k, page;
     int32 *npatterns = (int32 *) malloc(npages * sizeof(int32));
@@ -528,11 +533,13 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_bitmaps
         }
     }
 
-    fprintf(stdout,"Size of %u JB2 images in memory: %0.2f MiB\n", npages, images_size_in_mem / 1024 / 1024);
+    if (verbose) {
+        fprintf(stdout,"Size of %u JB2 images in memory: %0.2f MiB\n", npages, images_size_in_mem / 1024 / 1024);
+    }
 
     max_tag = mdjvu_multipage_classify_patterns
         (npages, total_patterns_count, npatterns,
-         pointers, result, dpi, options, report, param);
+         pointers, result, dpi, options, report, verbose);
 
     if (centers_needed)
     {

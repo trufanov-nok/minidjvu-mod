@@ -70,7 +70,7 @@ static void find_substitutions(mdjvu_image_t image,
     mdjvu_matcher_options_t m_opt = opt->matcher_options;
     int32 i, n = mdjvu_image_get_bitmap_count(image);
     int32 *tags = (int32 *) malloc(n * sizeof(int32));
-    int32 max_tag = mdjvu_classify_bitmaps(image, tags, m_opt, /* centers_needed: */ opt->averaging);
+    int32 max_tag = mdjvu_classify_bitmaps(image, tags, m_opt, /* centers_needed: */ opt->averaging, opt->verbose);
     mdjvu_bitmap_t *representatives = (mdjvu_bitmap_t *)
         calloc(max_tag + 1 /* cause starts with 1 */, sizeof(mdjvu_bitmap_t));
     int32 *cx = (int32 *) malloc(n * sizeof(int32));
@@ -332,7 +332,7 @@ MDJVU_FUNCTION mdjvu_image_t mdjvu_compress_multipage(int n, mdjvu_image_t *page
     max_tag = mdjvu_multipage_classify_bitmaps
         (n, total_bitmaps_count, pages, tags,
          ((struct MinidjvuCompressionOptions *) options)->matcher_options,
-         report_classify, options, options->averaging);
+         report_classify, options->averaging, options->verbose);
     if (options->report) printf(_("finished classification\n"));
 
     dictionary_flags = (unsigned char *) malloc((max_tag + 1));
