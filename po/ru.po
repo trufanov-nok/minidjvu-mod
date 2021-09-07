@@ -7,7 +7,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Minidjvu 0.9m04\n"
+"Project-Id-Version: Minidjvu 0.9m05\n"
 "Report-Msgid-Bugs-To: trufanovan@gmail.com\n"
 "POT-Creation-Date: 2021-09-05 20:24+0300\n"
 "PO-Revision-Date: 2009-06-27 14:05+0400\n"

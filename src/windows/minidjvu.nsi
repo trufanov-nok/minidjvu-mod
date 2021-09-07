@@ -1,8 +1,8 @@
 !include "MUI.nsh"
 
   ;Name and file
-  Name "Minidjvu 0.9m04"
-  OutFile "minidjvu-mod-0.9m04.exe"
+  Name "Minidjvu 0.9m05"
+  OutFile "minidjvu-mod-0.9m05.exe"
 
   ;Default installation folder
   InstallDir "$PROGRAMFILES\minidjvu-mod"

@@ -1,3 +1,14 @@
+minidjvu-mod (0.9m05) bionic; urgency=medium
+
+  * Replace classifier with a more accurate version
+  * No ceache is used. Smaller RAM consumption
+  * -C option has been removed.
+  * Fixed missing AT&T id in single-page djvus
+  * Fixed long horisontal lines encoding
+  * Fixed few minor bugs
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Tue, 7 Sep 2021 15:10:00 +0300
+
 minidjvu-mod (0.9m04) bionic; urgency=medium
 
   * Fix a bug with case-sensitive filesystems

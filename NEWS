@@ -1,4 +1,15 @@
 ---
+0.9m05
+---
+
+  Replace classifier with a more accurate version. No ceache is longer
+     used in it so RAM consumption become smaller. -C option has been removed.
+     So now only one classifier is supported.
+  bugfix: missing AT&T id in single-page djvus
+  bugfix: long horisontal lines was splitted to a too small pieces
+  bugfix: Fixed few minor bugs
+
+---
 0.9m04
 ---
     Fixed a bug with case-sensitive filesystems
