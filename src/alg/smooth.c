@@ -149,7 +149,7 @@ static void smooth_row(unsigned char *r, /* result    */
             res |= mask2;
         }
 
-        res = swap_t(&res, i==len-1?tail_len:sizeof (size_t));
+        res = swap_t(&res, /*i==len-1?tail_len:*/sizeof (size_t));
         memcpy(r_p++, &res, (i==len-1)?tail_len:sizeof (size_t));
     }
 
