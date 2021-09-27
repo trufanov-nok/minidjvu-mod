@@ -79,9 +79,13 @@ MDJVU_IMPLEMENT int mdjvu_file_save_djvu_page(mdjvu_image_t image, mdjvu_file_t 
         mdjvu_iff_close_chunk(INCL, file);
     }
 
-    Sjbz = mdjvu_iff_write_chunk(MDJVU_IFF_ID("Sjbz"), file);
-    if (!mdjvu_file_save_jb2(image, file, perr, erosion)) return 0;
-    mdjvu_iff_close_chunk(Sjbz, file);
+    if (mdjvu_image_get_bitmap_count(image) ||
+            mdjvu_image_get_blit_count(image))
+    { // non empty page
+        Sjbz = mdjvu_iff_write_chunk(MDJVU_IFF_ID("Sjbz"), file);
+        if (!mdjvu_file_save_jb2(image, file, perr, erosion)) return 0;
+        mdjvu_iff_close_chunk(Sjbz, file);
+    }
     mdjvu_iff_close_chunk(FORM, file);
 
     pos = ftell((FILE *) file) - pos;
