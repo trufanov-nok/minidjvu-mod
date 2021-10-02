@@ -25,7 +25,7 @@ libminidjvu_mod_la_SOURCES = src/matcher/no_mdjvu.h src/matcher/bitmaps.h	\
  src/matcher/common.h src/djvu/bs.h src/jb2/jb2coder.h			\
  src/jb2/bmpcoder.h src/jb2/zp.h src/jb2/jb2const.h			\
  src/base/mdjvucfg.h src/matcher/cuts.c src/matcher/patterns.c		\
- src/matcher/frames.c src/matcher/bitmaps.c src/alg/nosubst.c		\
+ src/matcher/frames.c src/matcher/bitmaps.c				\
  src/alg/erosion.c src/alg/smooth.c src/alg/delegate.c			\
  src/alg/classify.c src/alg/render.c src/alg/clean.c			\
  src/alg/adjust_y.c src/alg/blitsort.c src/alg/split.c			\

@@ -66,9 +66,6 @@ MDJVU_IMPLEMENT void mdjvu_sort_blits(mdjvu_image_t img)
     BlitPassport *bps;
     int32 *bottoms, *passport_of_blit;
 
-    if (!mdjvu_image_has_not_a_letter_flags(img))
-        mdjvu_calculate_not_a_letter_flags(img);
-
     /* Count letter blits */
     blit_count = mdjvu_image_get_blit_count(img);
     for (i = 0; i < blit_count; i++)

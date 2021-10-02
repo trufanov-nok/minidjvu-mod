@@ -152,9 +152,6 @@ MDJVU_IMPLEMENT void mdjvu_compress_image(mdjvu_image_t image, mdjvu_compression
     else
         options = mdjvu_compression_options_create();
 
-    if (options->verbose) puts(_("deciding what pieces are letters"));
-    mdjvu_calculate_not_a_letter_flags(image);
-
     if (options->verbose) puts(_("sorting blits"));
     mdjvu_sort_blits(image);
     if (options->verbose) puts(_("sorting bitmaps"));
@@ -315,9 +312,6 @@ MDJVU_FUNCTION mdjvu_image_t mdjvu_compress_multipage(int n, mdjvu_image_t *page
     for (i = 0; i < n; i++)
     {
         total_bitmaps_count += mdjvu_image_get_bitmap_count(pages[i]);
-
-        if (options->verbose) printf(_("deciding what pieces are letters in page #%d\n"), i);
-        mdjvu_calculate_not_a_letter_flags(pages[i]);
 
         if (options->verbose) printf(_("sorting letters in page #%d\n"), i);
         mdjvu_sort_blits(pages[i]);

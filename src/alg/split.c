@@ -641,6 +641,7 @@ ccimage_get_jb2image(struct CCImage* image)
 {
     mdjvu_image_t result = mdjvu_image_create(image->width, image->height);
     mdjvu_image_enable_suspiciously_big_flags(result);
+    mdjvu_image_enable_not_a_letter_flags(result);
     mdjvu_image_set_resolution(result, image->dpi);
 
     if (image->runs_count <= 0)
@@ -654,6 +655,7 @@ ccimage_get_jb2image(struct CCImage* image)
         mdjvu_image_add_blit(result, image->ccs[ccid].bb.xmin,
                              image->ccs[ccid].bb.ymin, bitmap);
         mdjvu_image_set_suspiciously_big_flag(result, bitmap, ccid >= image->nregularccs);
+        mdjvu_image_set_not_a_letter_flag(result, bitmap, ccid >= image->nregularccs);
     }
     // Return
     return result;
