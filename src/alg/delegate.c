@@ -64,6 +64,7 @@ MDJVU_IMPLEMENT mdjvu_image_t mdjvu_multipage_choose_average_representatives
         memset(sources, 0, total_count * sizeof(mdjvu_bitmap_t));
         memset(cx, 0, total_count * sizeof(int32));
         memset(cy, 0, total_count * sizeof(int32));
+        int32 stop_searching = 0;
         for (page_number = 0; page_number < npages; page_number++)
         {
             mdjvu_image_t page = pages[page_number];
@@ -77,8 +78,16 @@ MDJVU_IMPLEMENT mdjvu_image_t mdjvu_multipage_choose_average_representatives
                     sources[sources_found] = mdjvu_image_get_bitmap(page, i);
                     mdjvu_image_get_center(page, sources[sources_found], &cx[sources_found], &cy[sources_found]);
                     sources_found++;
+                    if (sources_found == 1 &&
+                            mdjvu_image_get_not_a_letter_flag(page, sources[0])) {
+                        // check if it's a losslessly compressed class. If so - one sample is enough
+                        stop_searching = 1;
+                        break;
+                    }
                 }
             }
+
+            if (stop_searching) break;
         }
 
         if (sources_found)

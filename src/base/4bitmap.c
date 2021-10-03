@@ -69,6 +69,16 @@ MDJVU_IMPLEMENT mdjvu_bitmap_t mdjvu_bitmap_clone(mdjvu_bitmap_t b)
     return result;
 }
 
+MDJVU_IMPLEMENT int mdjvu_bitmap_match(mdjvu_bitmap_t img1, mdjvu_bitmap_t img2)
+{
+    Bitmap* b1 = (Bitmap*) img1;
+    Bitmap* b2 = (Bitmap*) img2;
+    if (b1->width == b2->width && b1->height == b2->height) {
+        return memcmp(b1->data[0], b2->data[0], BYTES_PER_ROW(b1->width) * b1->height) == 0;
+    }
+    return 0;
+}
+
 MDJVU_IMPLEMENT void mdjvu_bitmap_assign(mdjvu_bitmap_t dst, mdjvu_bitmap_t b)
 {
     mdjvu_destroy_2d_array(((Bitmap *)dst)->data);

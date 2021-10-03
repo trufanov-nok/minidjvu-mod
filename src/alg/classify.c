@@ -386,10 +386,7 @@ MDJVU_IMPLEMENT int32 mdjvu_classify_bitmaps
     for (i = 0; i < n; i++)
     {
         mdjvu_bitmap_t bitmap = mdjvu_image_get_bitmap(image, i);
-        if (mdjvu_image_get_not_a_letter_flag(image, bitmap))
-            patterns[i] = NULL;
-        else
-            patterns[i] = mdjvu_pattern_create(options, bitmap);
+        patterns[i] = mdjvu_pattern_create(options, bitmap, mdjvu_image_get_not_a_letter_flag(image, bitmap));
     }
 
     max_tag = mdjvu_classify_patterns(patterns, result, n, dpi, options, verbose);
@@ -521,15 +518,9 @@ MDJVU_IMPLEMENT int32 mdjvu_multipage_classify_bitmaps
         pointers[page] = patterns + patterns_created;
         for (i = 0; i < c; i++)
         {
-            if (mdjvu_image_get_not_a_letter_flag(current_image, mdjvu_image_get_bitmap(current_image, i)))
-                patterns[patterns_created++] = NULL;
-            else
-            {
-                patterns[patterns_created++] = mdjvu_pattern_create(
-                    options,
-                    mdjvu_image_get_bitmap(current_image, i)
-                );
-            }
+            mdjvu_bitmap_t bmp = mdjvu_image_get_bitmap(current_image, i);
+            patterns[patterns_created++] = mdjvu_pattern_create(options, bmp,
+                                                                mdjvu_image_get_not_a_letter_flag(current_image, bmp));
         }
     }
 

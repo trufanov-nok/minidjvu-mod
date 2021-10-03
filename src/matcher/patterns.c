@@ -111,6 +111,8 @@ typedef unsigned char byte;
 
 typedef struct ComparableImageData
 {
+    int32 lossless; // if set on the only meaningful field is bitmap
+    mdjvu_bitmap_t bitmap; // NULL if not lossless
     byte **pixels; /* 0 - purely white, 255 - purely black (inverse to PGM!) */
     byte **pith2_inner;
     byte **pith2_outer;
@@ -618,12 +620,22 @@ static unsigned char **quick_thicken_old(unsigned char **pixels, int w, int h, i
 
 
 #ifndef NO_MINIDJVU
-mdjvu_pattern_t mdjvu_pattern_create(mdjvu_matcher_options_t opt, mdjvu_bitmap_t bitmap)
+mdjvu_pattern_t mdjvu_pattern_create(mdjvu_matcher_options_t opt, mdjvu_bitmap_t bitmap, int32 enforce_lossless)
 {
     mdjvu_init();
 
     Options *m_opt = (Options *) opt;
     Image *img = MALLOC1(Image);
+    
+    enforce_lossless |= !m_opt->aggression;
+    img->lossless = enforce_lossless;
+    img->bitmap = enforce_lossless ? bitmap : NULL;
+    if (enforce_lossless) {
+        img->pixels = img->pith2_inner = img->pith2_outer = NULL;
+        img->mass = img->mass_center_x = img->mass_center_y = 0;
+        return (mdjvu_pattern_t) img;
+    }
+    
     int32 w = mdjvu_bitmap_get_width(bitmap);
     int32 h = mdjvu_bitmap_get_height(bitmap);
 
@@ -643,11 +655,12 @@ mdjvu_pattern_t mdjvu_pattern_create(mdjvu_matcher_options_t opt, mdjvu_bitmap_t
     mdjvu_get_black_and_white_signature(img->pixels, w, h,
                                         img->signature2, SIGNATURE_SIZE);
 
-    if (!m_opt->aggression)
-    {
-        free_bitmap(img->pixels);
-        img->pixels = NULL;
-    }
+    //  the !m_opt->aggression is interpreted as lossless now
+    // if (!m_opt->aggression)
+    // {
+    //     free_bitmap(img->pixels);
+    //     img->pixels = NULL;
+    // }
 
     if (m_opt->method & MDJVU_MATCHER_PITH_2)
     {
@@ -1034,6 +1047,18 @@ static int compare_patterns(mdjvu_pattern_t ptr1, mdjvu_pattern_t ptr2,/*{{{*/
 
 {
     Image *i1 = (Image *) ptr1, *i2 = (Image *) ptr2;
+
+    // check if lossless compression is enforced    
+    if (i1->lossless != i2->lossless) {
+        return -1;
+    } else if (i1->lossless) {
+        // just perform size check and memcmp()
+        return mdjvu_bitmap_match(i1->bitmap, i2->bitmap) ? 1: -1;
+    }
+
+    // lossless is false
+    
+    
     int i, state = 0; /* 0 - unsure, 1 - equal unless veto */
 
     if (simple_tests(i1, i2)) return -1;

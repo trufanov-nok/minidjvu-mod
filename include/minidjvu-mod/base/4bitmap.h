@@ -82,6 +82,7 @@ MDJVU_FUNCTION void mdjvu_bitmap_clear(mdjvu_bitmap_t);
 MDJVU_FUNCTION mdjvu_bitmap_t mdjvu_bitmap_crop
     (mdjvu_bitmap_t b, int32 left, int32 top, int32 w, int32 h);
 MDJVU_FUNCTION mdjvu_bitmap_t mdjvu_bitmap_clone(mdjvu_bitmap_t b);
+MDJVU_FUNCTION int mdjvu_bitmap_match(mdjvu_bitmap_t img1, mdjvu_bitmap_t img2);
 
 MDJVU_FUNCTION void mdjvu_bitmap_get_bounding_box
     (mdjvu_bitmap_t b, int32 *pl, int32 *pt, int32 *pw, int32 *ph);

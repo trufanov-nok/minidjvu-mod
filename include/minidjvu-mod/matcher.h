@@ -38,7 +38,7 @@ typedef struct MinidjvuPattern *mdjvu_pattern_t;
  *     (that is, you can destroy the bitmap immediately)
  */
 #ifndef NO_MINIDJVU
-MDJVU_FUNCTION mdjvu_pattern_t mdjvu_pattern_create(mdjvu_matcher_options_t, mdjvu_bitmap_t);
+MDJVU_FUNCTION mdjvu_pattern_t mdjvu_pattern_create(mdjvu_matcher_options_t, mdjvu_bitmap_t, int32);
 #endif
 
 /* Return size of a pattern in memory in bytes */

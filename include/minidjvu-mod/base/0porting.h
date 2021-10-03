@@ -102,6 +102,8 @@
 /* Convenience macros. */
 #define MDJVU_MALLOC(T) ((T *) malloc(sizeof(T)))
 #define MDJVU_MALLOCV(T,N) ((T *) malloc((N) * sizeof(T)))
+#define MDJVU_CALLOC(T) ((T *) calloc(1, sizeof(T)))
+#define MDJVU_CALLOCV(T,N) ((T *) calloc(N, sizeof(T)))
 #define MDJVU_FREE(P) free(P)
 #define MDJVU_FREEV(P) free(P)
 

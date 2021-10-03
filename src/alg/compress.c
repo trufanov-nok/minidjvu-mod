@@ -23,8 +23,7 @@ struct MinidjvuCompressionOptions
 
 MDJVU_IMPLEMENT mdjvu_compression_options_t mdjvu_compression_options_create()
 {
-    mdjvu_compression_options_t opt = (mdjvu_compression_options_t)
-        malloc(sizeof(struct MinidjvuCompressionOptions));
+    mdjvu_compression_options_t opt = MDJVU_MALLOC(struct MinidjvuCompressionOptions);
     mdjvu_init();
     opt->clean = 0;
     opt->verbose = 0;
@@ -69,12 +68,11 @@ static void find_substitutions(mdjvu_image_t image,
 {
     mdjvu_matcher_options_t m_opt = opt->matcher_options;
     int32 i, n = mdjvu_image_get_bitmap_count(image);
-    int32 *tags = (int32 *) malloc(n * sizeof(int32));
+    int32 *tags = MDJVU_MALLOCV(int32, n);
     int32 max_tag = mdjvu_classify_bitmaps(image, tags, m_opt, /* centers_needed: */ opt->averaging, opt->verbose);
-    mdjvu_bitmap_t *representatives = (mdjvu_bitmap_t *)
-        calloc(max_tag + 1 /* cause starts with 1 */, sizeof(mdjvu_bitmap_t));
-    int32 *cx = (int32 *) malloc(n * sizeof(int32));
-    int32 *cy = (int32 *) malloc(n * sizeof(int32));
+    mdjvu_bitmap_t *representatives = MDJVU_CALLOCV(mdjvu_bitmap_t, max_tag + 1 /* cause starts with 1 */);
+    int32 *cx = MDJVU_MALLOCV(int32, n);
+    int32 *cy = MDJVU_MALLOCV(int32, n);
 
     if (!mdjvu_image_has_substitutions(image))
        mdjvu_image_enable_substitutions(image);
@@ -89,7 +87,7 @@ static void find_substitutions(mdjvu_image_t image,
     else
     {
         /* Average */
-        mdjvu_bitmap_t *sources = (mdjvu_bitmap_t *) calloc(n, sizeof(mdjvu_bitmap_t));
+        mdjvu_bitmap_t *sources = MDJVU_CALLOCV(mdjvu_bitmap_t, n);
         for (i = 1; i <= max_tag; i++)
         {
             int j, sources_found = 0;
@@ -97,25 +95,32 @@ static void find_substitutions(mdjvu_image_t image,
     
             for (j = 0; j < n; j++)
             {
-                if (tags[j] == i)
+                if (tags[j] == i) {
                     sources[sources_found++] = mdjvu_image_get_bitmap(image, j);
+                    if (sources_found == 1 &&
+                            mdjvu_image_get_not_a_letter_flag(image, sources[0])) {
+                        // check if it's a losslessly compressed class. If so - one sample is enough
+                        break;
+                    }
+                }
             }
     
             for (j = 0; j < sources_found; j++)
                 mdjvu_image_get_center(image, sources[j], &cx[j], &cy[j]);
-    
+
             rep = mdjvu_average(sources, sources_found, cx, cy);
             mdjvu_image_add_bitmap(image, rep);
             mdjvu_image_set_substitution(image, rep, rep);
+
             representatives[i] = rep;
         }
         
         mdjvu_image_disable_centers(image);
-        free(sources);
+        MDJVU_FREEV(sources);
     }
     assert(mdjvu_image_check_indices(image));
-    free(cx);
-    free(cy);
+    MDJVU_FREEV(cx);
+    MDJVU_FREEV(cy);
 
 
     for (i = 0; i < n; i++)
@@ -126,8 +131,8 @@ static void find_substitutions(mdjvu_image_t image,
                                      representatives[tags[i]]);
     }
 
-    free(representatives);
-    free(tags);
+    MDJVU_FREEV(representatives);
+    MDJVU_FREEV(tags);
 }
 
 
@@ -329,9 +334,8 @@ MDJVU_FUNCTION mdjvu_image_t mdjvu_compress_multipage(int n, mdjvu_image_t *page
          report_classify, options->averaging, options->verbose);
     if (options->report) printf(_("finished classification\n"));
 
-    dictionary_flags = (unsigned char *) malloc((max_tag + 1));
-    representatives = (mdjvu_bitmap_t *)
-        malloc((max_tag + 1) * sizeof(mdjvu_bitmap_t));
+    dictionary_flags = MDJVU_MALLOCV(unsigned char, max_tag + 1);
+    representatives = MDJVU_MALLOCV(mdjvu_bitmap_t, max_tag + 1);
 
     npatterns = MDJVU_MALLOCV(int32, n);
     for (i = 0; i < n; i++)
@@ -373,8 +377,8 @@ MDJVU_FUNCTION mdjvu_image_t mdjvu_compress_multipage(int n, mdjvu_image_t *page
         if (options->report) printf(_("finished prototype search\n"));
     }
 
-    free(dictionary_flags);
-    free(representatives);
+    MDJVU_FREEV(dictionary_flags);
+    MDJVU_FREEV(representatives);
     MDJVU_FREEV(tags);
 
     return dictionary;
