@@ -333,6 +333,10 @@ SettingsReader::readImageOptions(struct ImageOptions* opts)
    page       0    # if file is multipage, use only page 0
    page-start 0    # if file is multipage, use pages from 0 to page-end
    page-end   3    # if file is multipage, use pages from page-start to 3
+   #id        page # equal to filename without extension if not set in settings file
+                   # if page > 0 it will be added to the id.
+                   # encoder will ensure that all id's are unique
+                   # the chunk id will be set based on his value plus ".djvu" or ".jb2" (in case of -j opt)
   )
 
  # etc. for other files. Just write their filename if default settings is fine
@@ -348,6 +352,8 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
     GUTF8String orig_token;
     GUTF8String token;
     GUTF8String filename;
+    GUTF8String id;
+
 
     auto opts = std::unique_ptr< struct ImageOptions, void(*)(void*)>{ nullptr, free };
 
@@ -393,6 +399,8 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
         } else if (token == "page-end") {
             if (!readValInt("page-end", page_end, 0, 1e6)) return false;
             multipage = 1;
+        } if (token == "id") {
+            if (!readValStr("id", id)) return false;
         } else {
             filename = orig_token;
         }
@@ -403,6 +411,15 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
         return false;
     }
 
+    if (!ref_only) {
+        if (!id.is_valid()) {
+            id = filename;
+        }
+    } else {
+        fprintf(stderr, _("WARNING: reference to the file %s contains redefines its id. This value will be ignored!\n"), filename.getUTF82Native().getbuf());
+    }
+
+
     if (multipage) {
         if (page_end < page_start) {
             int i = page_start;
@@ -411,13 +428,15 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
         }
 
         if (!ref_only) {
-            file_list_add_filename_with_filter(file_list, filename.getUTF82Native().getbuf(), page_start, page_end, opts.get());
+            file_list_add_filename_with_filter(file_list, filename.getUTF82Native().getbuf(),
+                                               id.getUTF82Native().getbuf(), page_start, page_end, opts.get());
         } else {
             file_list_add_ref_with_filter(file_list, &m_appOptions->file_list, filename.getUTF82Native().getbuf(), page_start, page_end);
         }
     } else {
         if (!ref_only) {
-            file_list_add_filename(file_list, filename.getUTF82Native().getbuf(), opts.get());
+            file_list_add_filename(file_list, filename.getUTF82Native().getbuf(),
+                                   id.getUTF82Native().getbuf(), opts.get());
         } else {
             file_list_add_ref(file_list, &m_appOptions->file_list, filename.getUTF82Native().getbuf());
         }
@@ -462,7 +481,7 @@ SettingsReader::readInputFiles(struct FileList* file_list, bool ref_only)
         if (ref_only) {
             file_list_add_ref(file_list, &m_appOptions->file_list, orig_token.getUTF82Native().getbuf());
         } else {
-            file_list_add_filename(file_list, orig_token.getUTF82Native().getbuf(), NULL);
+            file_list_add_filename(file_list, orig_token.getUTF82Native().getbuf(), orig_token.getUTF82Native().getbuf(), NULL);
         }
     }
 

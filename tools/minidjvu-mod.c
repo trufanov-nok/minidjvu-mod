@@ -770,7 +770,7 @@ static void process_options(int argc, char **argv)
 
 
     for (; i < argc; i++) {
-        file_list_add_filename(&options.file_list, argv[i], 0);
+        file_list_add_filename(&options.file_list, argv[i], argv[i], 0);
     }
 
     if (settings_file_idx != -1) {

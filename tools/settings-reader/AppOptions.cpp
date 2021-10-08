@@ -83,6 +83,7 @@ struct InputFile* input_file_create()
     in->image_options = NULL;
 
     in->output_dpi = 300;
+    in->id = NULL;
     in->chunk_id = NULL;
     in->output_size = 0;
     in->djbz = NULL;
@@ -98,11 +99,79 @@ void input_file_destroy(InputFile* in)
     if (in->image_options) {
         image_options_destroy(in->image_options);
     }
+    if (in->id) {
+        MDJVU_FREEV(in->id);
+    }
     if (in->chunk_id) {
         MDJVU_FREEV(in->chunk_id);
     }
 
     free(in);
+}
+
+
+
+/*********************************************************
+ *
+ *                  file name template routines
+ *
+ *********************************************************/
+
+static int get_ext_delim_pos(const char *fname)
+{
+    for (const char* ptr = fname + strlen(fname)-1; ptr >= fname; ptr--) {
+        if (*ptr == '.') {
+            return ptr - fname;
+        }
+    }
+    return -1;
+}
+
+static char *get_page_or_dict_name(const char *fname, int page, bool save_as_chunk)
+{
+    const int extpos = get_ext_delim_pos(fname);
+    char * page_name = MDJVU_MALLOCV(char, extpos + 10);
+    memset(page_name, 0, sizeof(char) *(extpos + 10));
+    if (extpos > 0) {
+        strncpy(page_name, fname, extpos-1);
+    }
+    if (page > 0) {
+        sprintf(page_name + (extpos - 1),"#%03d%s", page+1, !save_as_chunk ? ".djvu" : ".jb2");
+    } else {
+        strcat(page_name, !save_as_chunk ? ".djvu" : ".jb2");
+    }
+
+    return(page_name);
+}
+
+void replace_suffix(char *name, const char *suffix)
+{
+    int len = strlen(name);
+
+    int suffix_len = 0;
+    for (suffix_len = 0; suffix_len < len; suffix_len++) {
+        if (name[len-suffix_len-1] == '.') {
+            break;
+        }
+    }
+    name[len-suffix_len] = '\0';
+    strcat(name, suffix);
+}
+
+static const char *strip(const char *str, char sep)
+{
+    const char *t = strrchr(str, sep);
+    if (t)
+        return t + 1;
+    else
+        return str;
+}
+
+
+/* return path without a directory name */
+static const char *strip_dir(const char *path)
+{
+    return path ? strip(strip(path, '\\'), '/') : NULL;
 }
 
 /*********************************************************
@@ -153,18 +222,33 @@ void file_list_add_file_ref(struct FileList *fl, struct InputFile* file)
     fl->files[fl->size++] = file;
 }
 
-void file_list_add_filename_and_page(struct FileList *fl, const char* fname, int page, struct ImageOptions* options)
+void file_list_add_filename_and_page(struct FileList *fl, const char* fname, const char* id, int page, struct ImageOptions* options)
 {
     struct InputFile* in = input_file_create();
     copy_str_alloc(&in->name, fname);
     in->page = page;
+
+    const char* stripped_id = strip_dir(id); // get base filename
+    int len_req = strlen(stripped_id);
+    // trim the latest extension if any
+    const int extpos = get_ext_delim_pos(stripped_id);
+    if (extpos != -1) {
+        len_req = extpos;
+    }
+    in->id = MDJVU_CALLOCV(char, len_req + 15);
+    strncpy(in->id, stripped_id, len_req);
+
+    if (page > 0) {
+        sprintf(in->id + len_req,"#%03d", page + 1);
+    }
+
     if (options) {
         in->image_options = image_options_create(options);
     }
     file_list_add_file_ref(fl, in);
 }
 
-void file_list_add_filename(struct FileList *fl, const char* fname, struct ImageOptions* options)
+void file_list_add_filename(struct FileList *fl, const char* fname, const char* id, struct ImageOptions* options)
 {
 
 #ifdef HAVE_LIBTIFF
@@ -174,12 +258,12 @@ void file_list_add_filename(struct FileList *fl, const char* fname, struct Image
     {
         // multipage tiff is detected
         for (int i = 0; i < tiff_cnt; i++) {
-            file_list_add_filename_and_page(fl, fname, i, options);
+            file_list_add_filename_and_page(fl, fname, id, i, options);
         }
     } else
 #endif
     {
-        file_list_add_filename_and_page(fl, fname, 0, options);
+        file_list_add_filename_and_page(fl, fname, id, 0, options);
     }
 }
 
@@ -196,7 +280,7 @@ inline void adjust_pages_interval(const char* fname, int tiff_cnt, int& pg_min, 
     }
 }
 
-void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, int pg_min, int pg_max, struct ImageOptions* options)
+void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, const char* id, int pg_min, int pg_max, struct ImageOptions* options)
 {
 #ifndef HAVE_LIBTIFF
     if (pg_max || pg_min) {
@@ -214,12 +298,12 @@ void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, 
         adjust_pages_interval(fname, tiff_cnt, pg_min, pg_max);
 
         for (int i = pg_min; i <= pg_max; i++) {
-            file_list_add_filename_and_page(fl, fname, i, options);
+            file_list_add_filename_and_page(fl, fname, id, i, options);
         }
     } else
 #endif
     {
-        file_list_add_filename_and_page(fl, fname, 0, options);
+        file_list_add_filename_and_page(fl, fname, id, 0, options);
     }
 }
 
@@ -508,72 +592,6 @@ void chunk_file_destroy(struct ChunkFile* cf)
     cf->file = NULL;
 }
 
-/*********************************************************
- *
- *                  file name template routines
- *
- *********************************************************/
-
-static int get_ext_delim_pos(const char *fname)
-{
-    size_t pos = strcspn(fname,".");
-    size_t last = 0;
-
-    while (last + pos != strlen(fname))
-    {
-        last += (pos + 1);
-        pos = strcspn(fname + last,".");
-    }
-    return last;
-}
-
-static char *get_page_or_dict_name(const char *fname, int page, bool save_as_chunk)
-{
-    const int extpos = get_ext_delim_pos(fname);
-    char * page_name = MDJVU_MALLOCV(char, extpos + 10);
-    memset(page_name, 0, sizeof(char) *(extpos + 10));
-    if (extpos > 0) {
-        strncpy(page_name, fname, extpos-1);
-    }
-    if (page > 0) {
-        sprintf(page_name + (extpos - 1),"#%03d%s", page+1, !save_as_chunk ? ".djvu" : ".jb2");
-    } else {
-        strcat(page_name, !save_as_chunk ? ".djvu" : ".jb2");
-    }
-
-    return(page_name);
-}
-
-void replace_suffix(char *name, const char *suffix)
-{
-    int len = strlen(name);
-
-    int suffix_len = 0;
-    for (suffix_len = 0; suffix_len < len; suffix_len++) {
-        if (name[len-suffix_len-1] == '.') {
-            break;
-        }
-    }
-    name[len-suffix_len] = '\0';
-    strcat(name, suffix);
-}
-
-static const char *strip(const char *str, char sep)
-{
-    const char *t = strrchr(str, sep);
-    if (t)
-        return t + 1;
-    else
-        return str;
-}
-
-
-/* return path without a directory name */
-static const char *strip_dir(const char *path)
-{
-    return path ? strip(strip(path, '\\'), '/') : NULL;
-}
-
 
 
 /*********************************************************
@@ -698,16 +716,44 @@ void app_options_autocomplete_djbzs(struct AppOptions* opts)
     }
 }
 
+void app_options_enforce_unique_ids(struct AppOptions* opts)
+{
+    for (int i = 0; i < opts->file_list.size-1; i++) {
+        const char * id = opts->file_list.files[i]->id;
+        int counter = 1;
+
+        for (int j = i+1; j < opts->file_list.size; j++) {
+            char * id2 = opts->file_list.files[j]->id;
+            if (strcmp(id, id2) == 0) {
+                sprintf(id2 + strlen(id2), " (%d)", ++counter);
+            }
+        }
+    }
+}
+
 void app_options_construct_chunk_ids(struct AppOptions* opts)
 {
-    // initialize elements with filenames as it can't be done in parallel blocks without critical sections
+    // make sure all id in filelist are unique
+    app_options_enforce_unique_ids(opts);
+    // initialize elements with ids as it can't be done in parallel blocks without critical sections
     for (int i = 0; i < opts->file_list.size; i++)
     {
         struct InputFile* in = opts->file_list.files[i];
         if (in->chunk_id) {
             MDJVU_FREEV(in->chunk_id);
         }
-        in->chunk_id = get_page_or_dict_name(strip_dir(in->name), in->page, opts->save_as_chunk);
+        int len_req = strlen(in->id);
+
+        in->chunk_id = MDJVU_CALLOCV(char, len_req + 10);
+        memcpy(in->chunk_id, in->id, len_req);
+        if (!opts->save_as_chunk) {
+            if (len_req < 5 || strcmp(in->chunk_id+len_req-5, ".djvu") != 0)
+                memcpy(in->chunk_id+len_req, ".djvu", 5);
+        } else {
+            if (len_req < 4 || strcmp(in->chunk_id+len_req-4, ".jb2") != 0)
+                memcpy(in->chunk_id+len_req, ".jb2", 4);
+        }
+
         chunk_file_create(&in->chunk_file, opts->indirect ? in->chunk_id : NULL);
     }
 

@@ -46,7 +46,10 @@ struct InputFile
     // if they aren't specified the encoder will try to determine dpi
     // from x resolution of tiff file and use it.
     int output_dpi;
-    char * chunk_id;
+    char * id;       // equal to filename without extension if not set in settings file
+                     // if page > 0 it will be added to the id.
+                     // encoder will ensure that all id's are unique
+    char * chunk_id; // id + ".djvu" (".jb2" if -j arg is used)
     int output_size;
 
     struct ChunkFile chunk_file;
@@ -122,8 +125,8 @@ void file_list_reserve(struct FileList* fl, int size);
 void file_list_clear(struct FileList *fl);
 int  file_list_find(struct FileList* fl, const struct InputFile* in);
 void file_list_add_file_ref(struct FileList* fl, struct InputFile *file);
-void file_list_add_filename(struct FileList *fl, const char* fname, struct ImageOptions* options);
-void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, int pg_min, int pg_max, struct ImageOptions* options);
+void file_list_add_filename(struct FileList *fl, const char* fname, const char* id, struct ImageOptions* options);
+void file_list_add_filename_with_filter(struct FileList *fl, const char* fname, const char* id, int pg_min, int pg_max, struct ImageOptions* options);
 void file_list_add_ref(struct FileList* dest, struct FileList* src, const char* fname);
 void file_list_add_ref_with_filter(struct FileList* dest, struct FileList* src, const char* fname, int pg_min, int pg_max);
 
