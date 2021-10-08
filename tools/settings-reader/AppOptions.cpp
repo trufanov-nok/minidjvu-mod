@@ -553,6 +553,11 @@ void chunk_file_open(struct ChunkFile* cf)
 
 void chunk_file_close(struct ChunkFile* cf)
 {
+    
+    if (cf->file == NULL) {
+		return; // nothing to close. TODO: properly fix this
+	}
+    
     int res = 0;
     if (cf->indirect_mode) {
         res = fclose(cf->file);
