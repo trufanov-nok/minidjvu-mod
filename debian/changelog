@@ -1,3 +1,19 @@
+minidjvu-mod (0.9m06) bionic; urgency=medium
+
+  * Replace counter walking components detection with
+    a more accurate DjVuLibre's connected-components
+    approach.
+  * Not a letter elements are now may be losslessly
+    encoded is a shared dictionary.
+  * Ensure all input files produce the pages with unique
+    chunk ids. Old version may generate malformed
+    bundled document if same file is encoded twice or
+    images with same basename (but different paths) are
+    encoded. Page chunk id now may be controlled in the
+    settings file.
+
+ -- Alexander Trufanov <trufanovan@gmail.com>  Fri, 8 Oct 2021 18:40:00 +0300
+
 minidjvu-mod (0.9m05) bionic; urgency=medium
 
   * Replace classifier with a more accurate version

@@ -1,4 +1,17 @@
 ---
+0.9m06
+---
+  Use DjVuLibre's connected components detection algorithm as old contour walking
+     approach sometimes failed to detect characters in table rects.
+  Enforce lossless classification for the not-a-letter elements. Now pieces of the
+     graphics, like table lines, may be losslessly compressed in shared dictionary.
+  Empty Sjbz chunk is not saved for empty pages anymore.
+  bugfix: now images with same basename (but different paths) may be used in
+     one bundled document. Their chunk ids (constructed from basename by default)
+     are ensured to be unique. Settings file may be used to control page chunk id
+     of the corresponding image.
+
+---
 0.9m05
 ---
 
