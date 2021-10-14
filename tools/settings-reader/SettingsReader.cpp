@@ -406,13 +406,13 @@ SettingsReader::readFile(struct FileList* file_list, bool ref_only)
         }
     }
 
-    if (!filename.is_valid()) {
+    if (!filename.length()) {
         std::cerr << _("ERROR: No any files are listed after file token!\n");
         return false;
     }
 
     if (!ref_only) {
-        if (!id.is_valid()) {
+        if (!id.length()) {
             id = filename;
         }
     } else {
