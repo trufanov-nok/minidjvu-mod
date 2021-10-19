@@ -14,7 +14,9 @@
 #include <omp.h>
 #endif
 #ifdef _WIN32
-#include <fileapi.h>
+//#include <fileapi.h>
+#include <sys\stat.h>
+#include <Windows.h>
 #endif
 
 #include "settings-reader/AppOptions.h"
@@ -124,6 +126,12 @@ static int decide_if_tiff(const char *path)
     return mdjvu_ends_with_ignore_case(path, ".tiff")
             || mdjvu_ends_with_ignore_case(path, ".tif");
 }
+
+static int decide_if_pbm(const char *path)
+{
+    return mdjvu_ends_with_ignore_case(path, ".pbm");
+}
+
 
 /* ========================================================================= */
 
@@ -667,6 +675,55 @@ static int same_option(const char *option, const char *s)
     return 0;
 }
 
+void add_dir_or_file(struct FileList* file_list, const char* path)
+{
+       int len = strlen(path);
+       char* filename = MDJVU_CALLOCV(char, FILENAME_MAX);
+       memcpy(filename, path, len);
+       char * tail = filename + len - 1;
+       while (tail >= filename && (*tail == '\\' || *tail == '/')) *tail-- = 0;
+       len = tail - filename + 1;
+
+
+#ifdef _WIN32
+       struct stat s;
+
+       if ( (stat(filename, &s) == 0)  &&      (s.st_mode & S_IFDIR) ) {
+               //it's a directory
+               filename[len++] = '\\';
+               filename[len] = '*';
+
+               WIN32_FIND_DATAA FindFileData;
+               HANDLE hFind = FindFirstFileA(filename, &FindFileData);
+               filename[len] = 0;
+               tail = filename + len;
+
+               if (hFind == INVALID_HANDLE_VALUE) {
+                       MDJVU_FREEV(filename);
+                       printf("FindFirstFile failed (%d)\n", GetLastError());
+                       return;
+               }
+
+               do {
+                       if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+                               if (decide_if_bmp(FindFileData.cFileName) ||
+                                       decide_if_tiff(FindFileData.cFileName) ||
+                                       decide_if_pbm(FindFileData.cFileName)) {
+                                       strncpy(tail, FindFileData.cFileName, FILENAME_MAX - len-1);
+                                       file_list_add_filename(file_list, filename, FindFileData.cFileName, 0);
+                               }
+               } while (FindNextFileA(hFind, &FindFileData) != 0);
+
+               FindClose(hFind);
+               MDJVU_FREEV(filename);
+               return;
+       }
+#endif
+       MDJVU_FREEV(filename);
+
+       file_list_add_filename(file_list, path, path, 0);
+}
+
 static void process_options(int argc, char **argv)
 {
     int i;
@@ -801,7 +858,7 @@ static void process_options(int argc, char **argv)
 
 
     for (; i < argc; i++) {
-        file_list_add_filename(&options.file_list, argv[i], 0);
+         add_dir_or_file(&options.file_list, argv[i]);
     }
 
     if (settings_file_idx != -1) {
