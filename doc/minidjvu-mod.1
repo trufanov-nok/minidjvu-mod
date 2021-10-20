@@ -21,7 +21,7 @@
 .\" License along with this manual. Otherwise check the web site
 .\" of the Free Software Foundation at http://www.fsf.org.
 .\" 
-.TH "MINIDJVU-MOD" "25" "June 2021" "minidjvu-mod-0.9m02" "minidjvu-mod-0.9m02"
+.TH "MINIDJVU-MOD" "20" "October 2021" "minidjvu-mod-0.9m07" "minidjvu-mod-0.9m07"
 .SH "NAME"
 minidjvu-mod - encode/decode black-and-white DjVu pages
 
@@ -31,6 +31,8 @@ minidjvu-mod - encode/decode black-and-white DjVu pages
 There is a similar syntax for multipage compression:
     
 .BI "minidjvu-mod  [" "options" "] " "input_files" " " "output_file"
+
+.BI "minidjvu-mod  [" "options" "] " "directory" " " "output_file"
 
 See
 .B "MULTIPAGE ENCODING" 
@@ -44,6 +46,11 @@ for DjVu.
 
 Besides bitonal DjVu, minidjvu-mod understands Windows BMP, PBM and TIFF (through
 libtiff) formats.
+
+If
+.I directory
+is specified as a source. It will be scanned for suported image formats (no recursive).
+
 Both
 .I inputfile
 and

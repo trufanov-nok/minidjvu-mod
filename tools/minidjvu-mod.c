@@ -13,8 +13,14 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#ifdef _WIN32
-#include <fileapi.h>
+
+#include <sys/stat.h>
+#if defined(_WIN32) || defined(__CYGWIN__)
+//#include <fileapi.h>
+#include <Windows.h>
+#else
+#define __USE_MISC // to get DT_REG constant
+#include <dirent.h>
 #endif
 
 #include "settings-reader/AppOptions.h"
@@ -48,6 +54,8 @@ static void show_usage_and_exit(void)           /* {{{ */
     printf(_("    minidjvu-mod [options] <input file> <output file>\n"));
     printf(_("multiple-page encoding:\n"));
     printf(_("    minidjvu-mod [options] <input files> ... <output file>\n"));
+    printf(_("multiple-page encoding of a directory content:\n"));
+    printf(_("    minidjvu-mod [options] <directory> <output file>\n"));
     printf(_("Formats supported:\n"));
 
     printf(_("    DjVu (single-page bitonal), PBM, Windows BMP"));
@@ -110,6 +118,10 @@ static int decide_if_tiff(const char *path)
             || mdjvu_ends_with_ignore_case(path, ".tif");
 }
 
+static int decide_if_pbm(const char *path)
+{
+    return mdjvu_ends_with_ignore_case(path, ".pbm");
+}
 /* ========================================================================= */
 
 static mdjvu_image_t load_image(const char *path)
@@ -642,6 +654,83 @@ static int same_option(const char *option, const char *s)
     return 0;
 }
 
+void add_dir_or_file(struct FileList* file_list, const char* path, int verbose)
+{
+       int len = strlen(path);
+       char* filename = MDJVU_CALLOCV(char, FILENAME_MAX);
+       memcpy(filename, path, len);
+       char * tail = filename + len - 1;
+       while (tail >= filename && (*tail == '\\' || *tail == '/')) *tail-- = 0;
+       len = tail - filename + 1;
+
+       struct stat s;
+       if ( (stat(filename, &s) == 0)  &&  (s.st_mode & S_IFDIR) ) { // must have no trailing '/' or '\'
+           // it's a directory
+       int images_found = 0;
+#if defined(_WIN32) || defined(__CYGWIN__)
+           filename[len++] = '\\';
+           filename[len] = '*';
+           WIN32_FIND_DATAA FindFileData;
+           HANDLE hFind = FindFirstFileA(filename, &FindFileData); // must have trailing '*' or "\*"
+           filename[len] = 0;
+           tail = filename + len;
+
+           if (hFind == INVALID_HANDLE_VALUE) {
+               MDJVU_FREEV(filename);
+               printf("FindFirstFile failed (%d)\n", GetLastError());
+               return;
+           }
+
+           do {
+               if (!(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+                   if (decide_if_bmp(FindFileData.cFileName) ||
+                           decide_if_tiff(FindFileData.cFileName) ||
+                           decide_if_pbm(FindFileData.cFileName)) {
+                       strncpy(tail, FindFileData.cFileName, FILENAME_MAX - len-1);
+                       file_list_add_filename(file_list, filename, FindFileData.cFileName, 0);
+                       images_found++;
+                   }
+           } while (FindNextFileA(hFind, &FindFileData) != 0);
+
+           FindClose(hFind);
+#else
+           filename[len++] = '/';
+           filename[len] = 0;
+           tail = filename + len;
+
+           DIR *dp;
+           dp = opendir(filename); // must have trailing '/'
+           if (dp != NULL) {
+               struct dirent *entry;
+               while ((entry = readdir(dp))) {
+                   if (entry->d_type == DT_REG) {
+                       if (decide_if_bmp(entry->d_name) ||
+                               decide_if_tiff(entry->d_name) ||
+                               decide_if_pbm(entry->d_name)) {
+                           strncpy(tail, entry->d_name, FILENAME_MAX - len-1);
+                           file_list_add_filename(file_list, filename, entry->d_name, 0);
+                           images_found++;
+                       }
+                   }
+               }
+               closedir(dp);
+           }
+
+#endif
+           if (verbose) {
+               *tail = 0;
+               printf(_("Searching images in \"%s\" found: %d"), filename, images_found);
+           }
+           MDJVU_FREEV(filename);
+           return;
+       }
+
+       MDJVU_FREEV(filename);
+
+       file_list_add_filename(file_list, path, path, 0);
+}
+
+
 static void process_options(int argc, char **argv)
 {
     int i;
@@ -770,7 +859,7 @@ static void process_options(int argc, char **argv)
 
 
     for (; i < argc; i++) {
-        file_list_add_filename(&options.file_list, argv[i], argv[i], 0);
+        add_dir_or_file(&options.file_list, argv[i], options.verbose);
     }
 
     if (settings_file_idx != -1) {
