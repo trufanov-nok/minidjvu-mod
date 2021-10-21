@@ -28,7 +28,7 @@ MDJVU_IMPLEMENT int mdjvu_files_save_djvu_dir(char **elements, int *sizes,
         for (int j = 0; j < num_tempfiles; j++) {
             int i, fpos, tpos;
             FILE * tempfile = (FILE *) tempfiles[j];
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
             fseek(tempfile, 0, SEEK_END);
 #endif
             tpos = ftell(tempfile);
@@ -48,6 +48,50 @@ MDJVU_IMPLEMENT int mdjvu_files_save_djvu_dir(char **elements, int *sizes,
 
     return 1;
 }
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+// pretty same as above but gets a list of filenames to write instead of a list of open file handles
+// bcs Windows doesn't allow to have more than ~2000 opened file handles simultaniously
+MDJVU_FUNCTION int mdjvu_filenames_save_djvu_dir(char **elements, int *sizes, int n,
+                                                 mdjvu_file_t file, char** temp_filenames, int num_temp_filenames, mdjvu_error_t *perr)
+{
+    mdjvu_iff_t FORM, DIRM;
+
+    mdjvu_write_big_endian_int32(MDJVU_IFF_ID("AT&T"), file);
+    FORM = mdjvu_iff_write_chunk(MDJVU_IFF_ID("FORM"), file);
+    mdjvu_write_big_endian_int32(MDJVU_IFF_ID("DJVM"), file);
+
+    DIRM = mdjvu_iff_write_chunk(MDJVU_IFF_ID("DIRM"), file);
+    if (num_temp_filenames)
+        mdjvu_write_dirm_bundled(elements, sizes, n, file, perr);
+    else
+        mdjvu_write_dirm_indirect(elements, sizes, n, file, perr);
+    mdjvu_iff_close_chunk(DIRM, file);
+
+
+    for (int j = 0; j < num_temp_filenames; j++) {
+        int i, fpos, tpos;
+        FILE*  tempfile = fopen((char *)temp_filenames[j], "r+b");
+        fseek(tempfile, 0, SEEK_END);
+        tpos = ftell(tempfile);
+        fpos = ftell((FILE *)file);
+
+        if (fpos & 1) fputc('\0', (FILE *)file);
+        rewind(tempfile);
+
+        for (i = 0; i<tpos; i++)
+        {
+            char ch = fgetc(tempfile);
+            fputc(ch, (FILE *)file);
+        }
+        fclose(tempfile);
+    }
+
+    mdjvu_iff_close_chunk(FORM, file);
+
+    return 1;
+}
+#endif
 
 MDJVU_IMPLEMENT int mdjvu_file_save_djvu_dir(char **elements, int *sizes,
     int n, mdjvu_file_t file, mdjvu_file_t tempfile, mdjvu_error_t *perr)

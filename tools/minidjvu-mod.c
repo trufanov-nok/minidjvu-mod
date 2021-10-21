@@ -574,9 +574,18 @@ static void multipage_encode()
     int el_size = options.file_list.size + options.djbz_list.size; // max
     char **elements = MDJVU_MALLOCV(char *, el_size);
     int  *sizes     = MDJVU_MALLOCV(int, el_size);
+#if defined(_WIN32) || defined(__CYGWIN__)
+    // we can't affort opening more than ~2000 files simultaniously in Windows
+    char **files = NULL;
+#else
     FILE **files = NULL;
+#endif
     if (!options.indirect) {
+#if defined(_WIN32) || defined(__CYGWIN__)
+        files    = MDJVU_MALLOCV(char *, el_size);
+#else
         files    = MDJVU_MALLOCV(FILE *, el_size);
+#endif
     }
 
     // assuming options.djbz_list is ordered by min_idx in SettingsReader::constructChunkIDs()
@@ -589,8 +598,12 @@ static void multipage_encode()
             elements[el] = in->djbz->chunk_id;
             sizes[el] = in->djbz->output_size;
             if (!options.indirect) {
+#if !defined(_WIN32) && !defined(__CYGWIN__)
                 chunk_file_open(&in->djbz->chunk_file);
                 files[el] = in->djbz->chunk_file.file;
+#else
+                files[el] = in->djbz->chunk_file.filename;
+#endif
             }
             el++;
         }
@@ -598,8 +611,12 @@ static void multipage_encode()
         elements[el] = in->chunk_id;
         sizes[el] = in->output_size;
         if (!options.indirect) {
+#if !defined(_WIN32) && !defined(__CYGWIN__)
             chunk_file_open(&in->chunk_file);
             files[el] = in->chunk_file.file;
+#else
+            files[el] = in->chunk_file.filename;
+#endif
         }
         el++;
     }
@@ -613,18 +630,26 @@ static void multipage_encode()
             exit(1);
         }
 
+#if !defined(_WIN32) && !defined(__CYGWIN__)
         mdjvu_files_save_djvu_dir(elements, sizes, el_size, (mdjvu_file_t) f, (mdjvu_file_t*) files, el_size, &error);
+#else
+        mdjvu_filenames_save_djvu_dir(elements, sizes, el_size, (mdjvu_file_t)f, files, el_size, &error);
+#endif
         fclose(f);
 
         for (int i = 0; i < options.djbz_list.size; i++) {
             struct DjbzOptions* djbz = options.djbz_list.djbzs[i];
+#if !defined(_WIN32) && !defined(__CYGWIN__)
             chunk_file_close(&djbz->chunk_file);
+#endif
             chunk_file_destroy(&djbz->chunk_file);
         }
 
         for (int i = 0; i < options.file_list.size; i++) {
             struct InputFile* in = options.file_list.files[i];
+#if !defined(_WIN32) && !defined(__CYGWIN__)
             chunk_file_close(&in->chunk_file);
+#endif
             chunk_file_destroy(&in->chunk_file);
         }
 

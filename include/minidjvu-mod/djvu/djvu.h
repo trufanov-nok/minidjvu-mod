@@ -22,6 +22,11 @@ MDJVU_FUNCTION mdjvu_image_t mdjvu_load_djvu_page(const char *path, mdjvu_error_
  */
 MDJVU_FUNCTION int mdjvu_files_save_djvu_dir(char **elements, int *sizes, int n,
                                              mdjvu_file_t file, mdjvu_file_t* tempfiles, int num_tempfiles, mdjvu_error_t *perr);
+#if defined(_WIN32) || defined(__CYGWIN__)
+MDJVU_FUNCTION int mdjvu_filenames_save_djvu_dir(char **elements, int *sizes, int n,
+        mdjvu_file_t file, char** temp_filenames, int num_temp_filenames, mdjvu_error_t *perr);
+#endif
+
 MDJVU_FUNCTION int mdjvu_file_save_djvu_dir( char **elements, int *sizes, int n,
                                              mdjvu_file_t file, mdjvu_file_t tmpfile, mdjvu_error_t *perr);
 MDJVU_FUNCTION int mdjvu_save_djvu_dir(char **elements, int *sizes, int n, const char *path, mdjvu_error_t *perr);
