@@ -344,20 +344,20 @@ Contains application options (pretty the same as may be passed via the command l
  indirect       0     # save indirect djvu (multifile) (off)
  #lossy          1    # if set, turns off or on following options:
                       # default-djbz::erosion, default-djbz::averaging
-                      # default-image::smooth, default-image::clean
+                      # default-image::smooth, default-image::clean, default-image::match
 
- match
- pages-per-dict 10   # automatically assign pages that aren't referred
-                     # in any djbz blocks to the new djbz dictionaries.
-                     # New dictionaries contain 10 (default) pages or less.
+ match          1     # use substitutions of visually similar characters for compression
+ pages-per-dict 10    # automatically assign pages that aren't referred
+                      # in any djbz blocks to the new djbz dictionaries.
+                      # New dictionaries contain 10 (default) pages or less.
 
- report         0    # report progress to stdout
- #threads-max   2    # if set, use max N threads for processing (each thread
-                     # process one block of pages. One djbz is a one block).
-                     # By default, if CPU have C cores:
-                     # if C > 2 then N = C-1, otherwise N = 1
- verbose        1    # print verbose log to stdout
- warnings       1    # print libtiff warnings to stdout
+ report         0     # report progress to stdout
+ #threads-max   2     # if set, use max N threads for processing (each thread
+                      # process one block of pages. One djbz is a one block).
+                      # By default, if CPU have C cores:
+                      # if C > 2 then N = C-1, otherwise N = 1
+ verbose        1     # print verbose log to stdout
+ warnings       1     # print libtiff warnings to stdout
 )
 
 
