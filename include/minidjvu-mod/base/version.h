@@ -5,7 +5,7 @@
 /*
  * This is the version of the headers.
  */
-#define MDJVU_VERSION "0.9m06"
+#define MDJVU_VERSION "0.9m07"
 
 /*
  * This function returns the compile-time version stamp.

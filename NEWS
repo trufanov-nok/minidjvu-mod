@@ -1,4 +1,14 @@
 ---
+0.9m07
+---
+  Allow directory as an input command line argument. Encoder will process all
+     supported images (TIFF, BMP, PBM) found in it (non recursive) in alphabetical
+     order.
+  Change the way DIRM saved to bundled multipage document to workaround problems
+     caused by limitation on number simultaniously opened file handles.
+  bugfix: correct reading chunk id of the image from the settings file.
+
+---
 0.9m06
 ---
   Use DjVuLibre's connected components detection algorithm as old contour walking
