@@ -440,6 +440,9 @@ ccimage_merge_and_split_ccs(struct CCImage* image)
     if (ncc <= 0) return;
     // Grid of special components
     int gridwidth = (image->width+splitsize-1)/splitsize;
+    int gridheight = (image->height+splitsize-1)/splitsize;
+    int gridsize = gridwidth*gridheight;
+    int split_count = 0;
     image->nregularccs = ncc;
     // Set the correct ccids for the runs
     for (int ccid=0; ccid<ncc; ccid++)
@@ -468,7 +471,7 @@ ccimage_merge_and_split_ccs(struct CCImage* image)
                 int gridj_start = x_start/splitsize;
                 int gridj_end = x_end/splitsize;
                 int gridj_span = gridj_end-gridj_start;
-                int newccid = ncc + gridi*gridwidth + gridj_start;
+                int newccid = ncc + split_count*gridsize + gridi*gridwidth + gridj_start;
                 if (! gridj_span)
                 {
                     r->ccid = newccid;
@@ -505,6 +508,7 @@ ccimage_merge_and_split_ccs(struct CCImage* image)
                     newrun->ccid = newccid++;
                 }
             }
+            split_count++;
         }
     }
     // Recompute cc descriptors
